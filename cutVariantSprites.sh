@@ -2,10 +2,10 @@
 
 cd $WORKDIR/assets/minecraft/optifine/ctm
 
-for path in $DOWNLOADS/log-spritesheet-variants/*_variants.png; do
+for path in $DOWNLOADS/log-spritesheet-variants/*.png; do
   
   file_name="${path#$DOWNLOADS/log-spritesheet-variants/}"
-  wood_type="${file_name%_variants.png}"
+  wood_type="${file_name%.png}"
   
   cd $wood_type
 
