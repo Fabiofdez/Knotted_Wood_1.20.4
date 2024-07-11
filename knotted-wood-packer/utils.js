@@ -5,6 +5,8 @@ import { globSync } from "glob";
 import looksSame from "looks-same";
 import { extname } from "path";
 
+const PACK_NAME = "Knotted_Wood_1.20.4.zip";
+
 const EXISTING_WOOD_TYPES = [
   "acacia",
   "birch",
@@ -26,6 +28,7 @@ const EXISTING_WOOD_TYPES = [
 
 const DIR = {
   ctm: "assets/minecraft/optifine/ctm",
+  defaultSprites: "log-sprite-defaults",
   variantSprites: "log-spritesheet-variants",
   topSprites: "log-spritesheet-tops",
 };
@@ -84,6 +87,9 @@ function argParse(args) {
       break;
     case "update-all":
       updateAll();
+      break;
+    case "rezip":
+      execSync(`cd ${WORK_DIR} && zip -9rq ${PACK_NAME} assets pack.*`);
       break;
     default:
       break;
@@ -216,7 +222,7 @@ async function updateAllSprites(block) {
   await createTmpDir(block);
   await updateSprites(block, SpriteTypes.VARIANT);
   await updateSprites(block, SpriteTypes.TOPS);
-  execSync(`rm -r ${WORK_DIR}/${block.name}tmp`);
+  execSync(`rm -r ${WORK_DIR}/${block.name}_tmp`);
 
   console.log(`...${block.name} updated`);
 }
@@ -239,11 +245,16 @@ async function updateSprites(block, isVariantType = true) {
   const path = `${DOWNLOADS}/${spritesheetDir}/${block.name}.png`;
   const convertCmd = `convert ${path} -crop 16x16 +repage -scene ${sceneStart} %d.png`;
 
-  execSync(`rm -rf ${WORK_DIR}/${block.name}tmp/*`);
-  execSync(`cd ${WORK_DIR}/${block.name}tmp && ${convertCmd}`);
-  if (!isVariantType) execSync(`rm ${WORK_DIR}/${block.name}tmp/47.png`);
+  execSync(`rm -rf ${WORK_DIR}/${block.name}_tmp/*`);
+  execSync(`cd ${WORK_DIR}/${block.name}_tmp && ${convertCmd}`);
 
-  const tmpSprites = await readdir(`${WORK_DIR}/${block.name}tmp`);
+  if (isVariantType) {
+    const defaultSprite = `${DOWNLOADS}/${DIR.defaultSprites}/${block.name}.png`;
+    execSync(`cp ${defaultSprite} ${WORK_DIR}/${block.name}_tmp/0.png`);
+  }
+  if (!isVariantType) execSync(`rm ${WORK_DIR}/${block.name}_tmp/47.png`);
+
+  const tmpSprites = await readdir(`${WORK_DIR}/${block.name}_tmp`);
   const existingSprites = await readdir(`${blockSpriteDir}`);
 
   existingSprites
@@ -255,7 +266,7 @@ async function updateSprites(block, isVariantType = true) {
     });
 
   for (const sprite of tmpSprites) {
-    const tmpSpritePath = `${WORK_DIR}/${block.name}tmp/${sprite}`;
+    const tmpSpritePath = `${WORK_DIR}/${block.name}_tmp/${sprite}`;
     const existingSpritePath = `${blockSpriteDir}/${sprite}`;
     const replace = () => execSync(`cp ${tmpSpritePath} ${existingSpritePath}`);
 
@@ -272,9 +283,9 @@ async function updateSprites(block, isVariantType = true) {
 
 /** @param {Block} block */
 async function createTmpDir(block) {
-  const tmpDir = await getDir(`${WORK_DIR}/${block.name}tmp`);
+  const tmpDir = await getDir(`${WORK_DIR}/${block.name}_tmp`);
   if (!tmpDir.exists) {
-    execSync(`mkdir ${WORK_DIR}/${block.name}tmp`);
+    execSync(`mkdir ${WORK_DIR}/${block.name}_tmp`);
   }
 }
 
