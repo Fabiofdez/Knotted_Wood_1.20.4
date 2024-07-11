@@ -79,6 +79,7 @@ function argParse(args) {
         err("log wood type must be provided");
         return;
       }
+      console.log(`Updating ${woodType}...`);
       updateLog(woodType);
       break;
     case "update-all":
@@ -124,6 +125,7 @@ function getBlock(woodType) {
 
 async function addNewLog(woodType) {
   const block = getBlock(woodType);
+  console.log(`Adding new log ${block.name}...`);
 
   const variants = await getDir(block.variantsDir);
   const tops = await getDir(block.topsDir);
@@ -149,7 +151,7 @@ async function updateLog(woodType) {
     return;
   }
 
-  updateProperties(block);
+  await updateProperties(block);
   updateAllSprites(block);
 }
 
@@ -157,6 +159,8 @@ async function updateLog(woodType) {
 async function updateProperties(block) {
   const blockProps = `${block.variantsDir}/${block.name}.properties`;
   const blockTopsProps = `${block.topsDir}/ctm.properties`;
+
+  updateCtmOverlay(block);
 
   execSync(`cp ${TEMPLATES_DIR}/template_log.properties ${blockProps}`);
   execSync(`cp ${TEMPLATES_DIR}/top.ctm.properties ${blockTopsProps}`);
@@ -170,8 +174,6 @@ async function updateProperties(block) {
     .then((buf) => buf.toLocaleString())
     .then((props) => props.replace(/TEMPLATE_LOG/g, block.name))
     .then((updated) => writeFileSync(blockTopsProps, updated));
-
-  updateCtmOverlay(block);
 }
 
 /** @param {Block} block */
@@ -197,6 +199,7 @@ function updateCtmOverlay(block) {
 
     const matchBlocks = firstLine.replace("matchBlocks=", "").split(" ");
     matchBlocks.push(`${block.name}:axis=${axis}`);
+    matchBlocks.forEach((val, idx) => (matchBlocks[idx] = val.trim()));
 
     const updatedProps = [
       "matchBlocks=" + [...new Set(matchBlocks)].sort().join(" "),
@@ -210,8 +213,12 @@ function updateCtmOverlay(block) {
 async function updateAllSprites(block) {
   const SpriteTypes = { VARIANT: true, TOPS: false };
 
+  await createTmpDir(block);
   await updateSprites(block, SpriteTypes.VARIANT);
   await updateSprites(block, SpriteTypes.TOPS);
+  execSync(`rm -r ${WORK_DIR}/${block.name}tmp`);
+
+  console.log(`...${block.name} updated`);
 }
 
 /**
@@ -232,10 +239,11 @@ async function updateSprites(block, isVariantType = true) {
   const path = `${DOWNLOADS}/${spritesheetDir}/${block.name}.png`;
   const convertCmd = `convert ${path} -crop 16x16 +repage -scene ${sceneStart} %d.png`;
 
-  await createTmpDir(convertCmd);
-  if (!isVariantType) execSync(`rm ${WORK_DIR}/tmp/47.png`);
+  execSync(`rm -rf ${WORK_DIR}/${block.name}tmp/*`);
+  execSync(`cd ${WORK_DIR}/${block.name}tmp && ${convertCmd}`);
+  if (!isVariantType) execSync(`rm ${WORK_DIR}/${block.name}tmp/47.png`);
 
-  const tmpSprites = await readdir(`${WORK_DIR}/tmp`);
+  const tmpSprites = await readdir(`${WORK_DIR}/${block.name}tmp`);
   const existingSprites = await readdir(`${blockSpriteDir}`);
 
   existingSprites
@@ -247,7 +255,7 @@ async function updateSprites(block, isVariantType = true) {
     });
 
   for (const sprite of tmpSprites) {
-    const tmpSpritePath = `${WORK_DIR}/tmp/${sprite}`;
+    const tmpSpritePath = `${WORK_DIR}/${block.name}tmp/${sprite}`;
     const existingSpritePath = `${blockSpriteDir}/${sprite}`;
     const replace = () => execSync(`cp ${tmpSpritePath} ${existingSpritePath}`);
 
@@ -260,22 +268,21 @@ async function updateSprites(block, isVariantType = true) {
   }
 
   execSync(`optipng -o7 -quiet ${blockSpriteDir}/*.png`);
-  execSync(`rm -r ${WORK_DIR}/tmp`);
 }
 
-async function createTmpDir(convertCmd = "ls") {
-  const tmpDir = await getDir(`${WORK_DIR}/tmp`);
-  if (tmpDir.exists) {
-    execSync(`rm -rf ${WORK_DIR}/tmp/*`);
-  } else {
-    execSync(`mkdir ${WORK_DIR}/tmp`);
+/** @param {Block} block */
+async function createTmpDir(block) {
+  const tmpDir = await getDir(`${WORK_DIR}/${block.name}tmp`);
+  if (!tmpDir.exists) {
+    execSync(`mkdir ${WORK_DIR}/${block.name}tmp`);
   }
-  execSync(`cd ${WORK_DIR}/tmp && ${convertCmd}`);
 }
 
-function updateAll() {
+async function updateAll() {
+  console.log(`Updating all ${EXISTING_WOOD_TYPES.length} logs...`);
+
   for (const woodType of EXISTING_WOOD_TYPES) {
-    updateLog(woodType);
+    await updateLog(woodType);
   }
 }
 
