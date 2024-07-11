@@ -42,11 +42,11 @@ function init() {
   DOWNLOADS = getShellConst("DOWNLOADS");
 
   if (!WORK_DIR) {
-    err("shell variable 'WORKDIR' not defined");
+    err("Shell variable 'WORKDIR' not defined");
     return;
   }
   if (!DOWNLOADS) {
-    err("shell variable 'DOWNLOADS' not defined");
+    err("Shell variable 'DOWNLOADS' not defined");
     return;
   }
   const [nodePath, filePath, ...args] = process.argv;
@@ -72,14 +72,14 @@ function argParse(args) {
   switch (action) {
     case "add-log":
       if (!woodType) {
-        err("log wood type must be provided");
+        err("Wood type must be provided");
         return;
       }
       addNewLog(woodType);
       break;
     case "update-log":
       if (!woodType) {
-        err("log wood type must be provided");
+        err("Wood type must be provided");
         return;
       }
       console.log(`Updating ${woodType}...`);
@@ -142,7 +142,7 @@ async function addNewLog(woodType) {
   if (!variants.exists) execSync(`mkdir ${block.variantsDir}`);
   if (!tops.exists) execSync(`mkdir ${block.topsDir}`);
 
-  updateProperties(block);
+  await updateProperties(block);
   updateAllSprites(block);
 }
 
@@ -153,7 +153,7 @@ async function updateLog(woodType) {
   const tops = await getDir(block.topsDir);
 
   if (!variants.exists || !tops.exists) {
-    err(`unknown wood type '${woodType}'`);
+    err(`Unknown wood type '${woodType}'`);
     return;
   }
 
