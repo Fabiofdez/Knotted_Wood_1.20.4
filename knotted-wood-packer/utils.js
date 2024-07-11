@@ -2,6 +2,8 @@ import { execSync } from "child_process";
 import { readFileSync, writeFileSync } from "fs";
 import { readdir, readFile } from "fs/promises";
 import { globSync } from "glob";
+import looksSame from "looks-same";
+import { extname } from "path";
 
 const EXISTING_WOOD_TYPES = [
   "acacia",
@@ -133,7 +135,7 @@ async function addNewLog(woodType) {
   if (!tops.exists) execSync(`mkdir ${block.topsDir}`);
 
   updateProperties(block);
-  updateSprites(block);
+  updateAllSprites(block);
 }
 
 async function updateLog(woodType) {
@@ -148,7 +150,7 @@ async function updateLog(woodType) {
   }
 
   updateProperties(block);
-  updateSprites(block);
+  updateAllSprites(block);
 }
 
 /** @param {Block} block */
@@ -205,34 +207,70 @@ function updateCtmOverlay(block) {
 }
 
 /** @param {Block} block */
-function updateSprites(block) {
-  updateVariantSprites(block);
-  updateTopsSprites(block);
+async function updateAllSprites(block) {
+  const SpriteTypes = { VARIANT: true, TOPS: false };
+
+  await updateSprites(block, SpriteTypes.VARIANT);
+  await updateSprites(block, SpriteTypes.TOPS);
 }
 
-/** @param {Block} block */
-async function updateVariantSprites(block) {
-  const contents = await readdir(`${DOWNLOADS}/${DIR.variantSprites}`);
+/**
+ * @param {Block} block
+ * @param {boolean} isVariantType
+ */
+async function updateSprites(block, isVariantType = true) {
+  const spritesheetDir = isVariantType ? DIR.variantSprites : DIR.topSprites;
+  const blockSpriteDir = isVariantType ? block.variantsDir : block.topsDir;
+  const type = isVariantType ? "variants" : "tops";
+  const sceneStart = isVariantType ? 1 : 0;
 
-  if (!contents.includes(`${block.name}.png`)) {
-    warn(`Spritesheet (variants) for '${block.name}' not found`);
+  const spritesheets = await readdir(`${DOWNLOADS}/${spritesheetDir}`);
+  if (!spritesheets.includes(`${block.name}.png`)) {
+    warn(`Spritesheet (${type}) for '${block.name}' not found`);
     return;
   }
-  const convertCmd = `convert $path -crop 16x16 +repage -scene 1 %d.png`;
-  // execSync(`cd ${block.variantsDir}`);
-  // execSync(`mkdir ${WORK_DIR}/tmp`);
-  // execSync(`cd ${WORK_DIR}/tmp && ${convertCmd}`);
+  const path = `${DOWNLOADS}/${spritesheetDir}/${block.name}.png`;
+  const convertCmd = `convert ${path} -crop 16x16 +repage -scene ${sceneStart} %d.png`;
+
+  await createTmpDir(convertCmd);
+  if (!isVariantType) execSync(`rm ${WORK_DIR}/tmp/47.png`);
+
+  const tmpSprites = await readdir(`${WORK_DIR}/tmp`);
+  const existingSprites = await readdir(`${blockSpriteDir}`);
+
+  existingSprites
+    .filter((file) => extname(file) === ".png")
+    .forEach((file) => {
+      if (!tmpSprites.includes(file)) {
+        execSync(`rm ${blockSpriteDir}/${file}`);
+      }
+    });
+
+  for (const sprite of tmpSprites) {
+    const tmpSpritePath = `${WORK_DIR}/tmp/${sprite}`;
+    const existingSpritePath = `${blockSpriteDir}/${sprite}`;
+    const replace = () => execSync(`cp ${tmpSpritePath} ${existingSpritePath}`);
+
+    if (!existingSprites.includes(sprite)) {
+      replace();
+    } else {
+      const { equal } = await looksSame(tmpSpritePath, existingSpritePath);
+      if (!equal) replace();
+    }
+  }
+
+  execSync(`optipng -o7 -quiet ${blockSpriteDir}/*.png`);
+  execSync(`rm -r ${WORK_DIR}/tmp`);
 }
 
-/** @param {Block} block */
-async function updateTopsSprites(block) {
-  const contents = await readdir(`${DOWNLOADS}/${DIR.topSprites}`);
-
-  if (!contents.includes(`${block.name}.png`)) {
-    warn(`Spritesheet (variants) for '${block.name}' not found`);
-    return;
+async function createTmpDir(convertCmd = "ls") {
+  const tmpDir = await getDir(`${WORK_DIR}/tmp`);
+  if (tmpDir.exists) {
+    execSync(`rm -rf ${WORK_DIR}/tmp/*`);
+  } else {
+    execSync(`mkdir ${WORK_DIR}/tmp`);
   }
-  execSync(`cd ${block.topsDir}`);
+  execSync(`cd ${WORK_DIR}/tmp && ${convertCmd}`);
 }
 
 function updateAll() {
@@ -240,34 +278,5 @@ function updateAll() {
     updateLog(woodType);
   }
 }
-
-/*
-cd $WORKDIR/assets/minecraft/optifine/ctm
-
-for path in $DOWNLOADS/log-spritesheet-variants/*.png; do
-
-  file_name="${path#$DOWNLOADS/log-spritesheet-variants/}"
-  wood_type="${file_name%.png}"
-
-  if ! [ -d $wood_type ]; then
-    mkdir $wood_type
-  fi
-
-  cd $wood_type
-
-  if ! [ -f "${wood_type}.properties" ]; then
-    echo "${wood_type} needs ${wood_type}.properties"
-  fi
-
-  rm *.png
-  convert $path -crop 16x16 +repage -scene 1 %d.png
-  cp $DOWNLOADS/log-sprite-defaults/$wood_type.png 0.png
-  chmod -x *.png
-  optipng -o5 -quiet *.png
-
-  cd ..
-
-done
-*/
 
 init();
