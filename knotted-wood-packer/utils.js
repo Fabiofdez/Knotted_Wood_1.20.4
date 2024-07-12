@@ -7,6 +7,52 @@ import { extname } from "path";
 
 const PACK_NAME = "Knotted_Wood_1.20.4.zip";
 
+/**
+ * @typedef {{
+ *    cmds: string[],
+ *    args: string[] | undefined,
+ *    fn: Function,
+ * }} Option
+ * @type {Option[]}
+ */
+const ARG_OPTIONS = [
+  {
+    cmds: ["-h", "--help"],
+    fn: () => console.log(`Options: \n${getOptions()}\n`),
+  },
+  {
+    cmds: ["-n", "--new-log"],
+    args: ["wood-type"],
+    fn: (woodType) => {
+      if (!woodType) {
+        err("Wood type must be provided");
+        return;
+      }
+      addNewLog(woodType);
+    },
+  },
+  {
+    cmds: ["-u", "--update-log"],
+    args: ["wood-type"],
+    fn: (woodType) => {
+      if (!woodType) {
+        err("Wood type must be provided");
+        return;
+      }
+      console.log(`Updating ${woodType}...`);
+      updateLog(woodType);
+    },
+  },
+  {
+    cmds: ["-a", "--update-all"],
+    fn: () => updateAll(),
+  },
+  {
+    cmds: ["-z", "--rezip"],
+    fn: () => rezip(),
+  },
+];
+
 const EXISTING_WOOD_TYPES = [
   "acacia",
   "birch",
@@ -28,9 +74,9 @@ const EXISTING_WOOD_TYPES = [
 
 const DIR = {
   ctm: "assets/minecraft/optifine/ctm",
-  defaultSprites: "log-sprite-defaults",
-  variantSprites: "log-spritesheet-variants",
-  topSprites: "log-spritesheet-tops",
+  defaultSprites: "Knotted_Wood/sprite_defaults",
+  variantSprites: "Knotted_Wood/spritesheet_variants",
+  topSprites: "Knotted_Wood/spritesheet_tops",
 };
 
 let WORK_DIR = "";
@@ -49,51 +95,42 @@ function init() {
     err("Shell variable 'DOWNLOADS' not defined");
     return;
   }
-  const [nodePath, filePath, ...args] = process.argv;
+  const [_np, _fp, cmd, ...args] = process.argv;
   TEMPLATES_DIR = `${WORK_DIR}/knotted-wood-packer/templates`;
-  argParse(args);
+
+  const opt = ARG_OPTIONS.find((opt) => opt.cmds.includes(cmd));
+  if (opt) {
+    opt.fn(...args);
+  } else {
+    err(`Unknown command '${cmd}' (type -h, --help for options)`);
+  }
 }
 
 function err(msg = "") {
-  console.error(`ERROR: ${msg}`);
+  console.error(`ERROR: ${msg}\n`);
 }
 function warn(msg = "") {
-  console.log(`WARNING: ${msg}`);
+  console.log(`WARNING: ${msg}\n`);
 }
 
 function getShellConst(varName) {
   return execSync(`echo \$${varName}`).toLocaleString().trim();
 }
 
-function argParse(args) {
-  const action = args[0];
-  const woodType = args[1];
+function getOptions() {
+  const opts = [];
 
-  switch (action) {
-    case "add-log":
-      if (!woodType) {
-        err("Wood type must be provided");
-        return;
-      }
-      addNewLog(woodType);
-      break;
-    case "update-log":
-      if (!woodType) {
-        err("Wood type must be provided");
-        return;
-      }
-      console.log(`Updating ${woodType}...`);
-      updateLog(woodType);
-      break;
-    case "update-all":
-      updateAll();
-      break;
-    case "rezip":
-      execSync(`cd ${WORK_DIR} && zip -9rq ${PACK_NAME} assets pack.*`);
-      break;
-    default:
-      break;
+  for (const opt of ARG_OPTIONS) {
+    const cmds = (opt.cmds || []).join(", ");
+    const args = (opt.args || []).join("> <");
+    opts.push(`   ${cmds}  ${args.length ? `<${args}>` : ""}`);
   }
+  return opts.join("\n");
+}
+
+function rezip() {
+  execSync(`cd ${WORK_DIR} && zip -9rq ${PACK_NAME} assets pack.*`);
+  console.log("Resource Pack re-zipped!\n");
 }
 
 async function getDir(path = "") {
@@ -224,7 +261,7 @@ async function updateAllSprites(block) {
   await updateSprites(block, SpriteTypes.TOPS);
   execSync(`rm -r ${WORK_DIR}/${block.name}_tmp`);
 
-  console.log(`...${block.name} updated`);
+  console.log(`...updated ${block.name}`);
 }
 
 /**
