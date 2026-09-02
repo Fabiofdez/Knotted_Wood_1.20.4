@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:block/template_log",
+  "textures": {
+    "particle": "minecraft:block/dark_oak_log",
+    "side0": "minecraft:block/dark_oak_log",
+    "side1": "minecraft:block/dark_oak_log_side_right",
+    "side2": "minecraft:block/dark_oak_log_side_left",
+    "side3": "minecraft:block/dark_oak_log_side_sm",
+    "end": "minecraft:block/dark_oak_log_top_31",
+    "side0_edges": "minecraft:block/blank",
+    "side1_edges": "minecraft:block/blank",
+    "side2_edges": "minecraft:block/blank",
+    "side3_edges": "minecraft:block/blank"
+  }
+}

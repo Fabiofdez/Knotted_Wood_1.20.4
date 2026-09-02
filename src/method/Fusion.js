@@ -3,6 +3,7 @@ import { Ctx } from "@const/RunContext";
 import { WoodTypes } from "@const/WoodTypes";
 import { Common } from "@methods/Common";
 import { SpriteMaker } from "@util/SpriteMaker";
+import { Templates } from "@util/Templates";
 import { Wood, WoodFacts } from "@util/Wood";
 import { execSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
@@ -16,21 +17,20 @@ export const Fusion = {
   updateWood(wood) {
     const hasVariants = WoodTypes.hasVariants(wood);
     const isStripped = WoodFacts.isStripped(wood);
-    // setUpDirs(wood);
+    setUpDirs(wood);
 
     Dir.makeTemp(`tmp/fusion/${wood.assetPath}`, async (dir) => {
       // if (!isStripped) SpriteMaker.Fusion.updateTopSprites(dir, wood);
-      // if (hasVariants) SpriteMaker.Fusion.updateVariantSprites(dir, wood);
+      if (hasVariants) SpriteMaker.Fusion.updateVariantSprites(dir, wood);
 
       if (!Ctx.NEW_WOODS?.[wood.id]) return;
 
-      // await SpriteMaker.Fusion.collectNewAssets(dir, wood);
+      await SpriteMaker.Fusion.collectNewAssets(dir, wood);
 
       // if (!isStripped) Templates.Fusion.TOP.defineFor(wood);
-      // if (hasVariants) {
-      //   Templates.Fusion.LOG_VARIANTS.defineFor(wood);
-      //   Templates.Fusion.WOOD_VARIANTS.defineFor(wood);
-      // }
+      if (hasVariants) {
+        Templates.Fusion.VARIANTS.defineFor(wood);
+      }
     });
   },
 
@@ -118,9 +118,9 @@ export const Fusion = {
       await SpriteMaker.Fusion.updateWoodEdgeSprites(dir);
     });
 
-    // for (const wood of woodAssets) {
-    //   Fusion.updateWood(wood);
-    // }
+    for (const wood of woodAssets) {
+      Fusion.updateWood(wood);
+    }
   },
 };
 

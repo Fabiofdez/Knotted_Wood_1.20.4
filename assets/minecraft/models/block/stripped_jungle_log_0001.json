@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:block/template_log",
+  "textures": {
+    "particle": "minecraft:block/stripped_jungle_log",
+    "side0": "minecraft:block/stripped_jungle_log",
+    "side1": "minecraft:block/stripped_jungle_log",
+    "side2": "minecraft:block/stripped_jungle_log",
+    "side3": "minecraft:block/stripped_jungle_log_side_sm",
+    "end": "minecraft:block/stripped_jungle_log_top_3",
+    "side0_edges": "minecraft:block/log_edge_left",
+    "side1_edges": "minecraft:block/log_edge_sm",
+    "side2_edges": "minecraft:block/log_edge_right",
+    "side3_edges": "minecraft:block/blank"
+  }
+}

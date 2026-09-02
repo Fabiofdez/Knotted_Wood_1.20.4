@@ -1,0 +1,19 @@
+{
+  "parent": "minecraft:block/template_log_overlay",
+  "textures": {
+    "particle": "regions_unexplored:block/silver_birch_log",
+    "side0": "regions_unexplored:block/silver_birch_log",
+    "side1": "regions_unexplored:block/silver_birch_log",
+    "side2": "regions_unexplored:block/silver_birch_log",
+    "side3": "regions_unexplored:block/silver_birch_log",
+    "side0_overlay": "regions_unexplored:block/silver_birch_log_base",
+    "side1_overlay": "regions_unexplored:block/silver_birch_log_base",
+    "side2_overlay": "regions_unexplored:block/silver_birch_log_base",
+    "side3_overlay": "regions_unexplored:block/silver_birch_log_base",
+    "end": "regions_unexplored:block/silver_birch_log_top",
+    "side0_edges": "minecraft:block/log_edge_sm",
+    "side1_edges": "minecraft:block/log_edge_sm",
+    "side2_edges": "minecraft:block/log_edge_sm",
+    "side3_edges": "minecraft:block/log_edge_sm"
+  }
+}

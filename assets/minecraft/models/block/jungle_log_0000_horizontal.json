@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:block/template_log_horizontal",
+  "textures": {
+    "particle": "minecraft:block/jungle_log",
+    "side0": "minecraft:block/jungle_log",
+    "side1": "minecraft:block/jungle_log",
+    "side2": "minecraft:block/jungle_log",
+    "side3": "minecraft:block/jungle_log",
+    "end": "minecraft:block/jungle_log_top",
+    "side0_edges": "minecraft:block/log_edge_sm",
+    "side1_edges": "minecraft:block/log_edge_sm",
+    "side2_edges": "minecraft:block/log_edge_sm",
+    "side3_edges": "minecraft:block/log_edge_sm"
+  }
+}

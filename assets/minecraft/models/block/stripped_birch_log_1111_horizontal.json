@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:block/template_log_horizontal",
+  "textures": {
+    "particle": "minecraft:block/stripped_birch_log",
+    "side0": "minecraft:block/stripped_birch_log_side_sm",
+    "side1": "minecraft:block/stripped_birch_log_side_sm",
+    "side2": "minecraft:block/stripped_birch_log_side_sm",
+    "side3": "minecraft:block/stripped_birch_log_side_sm",
+    "end": "minecraft:block/stripped_birch_log_top_46",
+    "side0_edges": "minecraft:block/blank",
+    "side1_edges": "minecraft:block/blank",
+    "side2_edges": "minecraft:block/blank",
+    "side3_edges": "minecraft:block/blank"
+  }
+}

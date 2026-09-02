@@ -1,0 +1,19 @@
+{
+  "parent": "minecraft:block/template_log_overlay_tint",
+  "textures": {
+    "particle": "regions_unexplored:block/eucalyptus_log_overlay",
+    "side0": "regions_unexplored:block/eucalyptus_log",
+    "side1": "regions_unexplored:block/eucalyptus_log",
+    "side2": "regions_unexplored:block/eucalyptus_log",
+    "side3": "regions_unexplored:block/eucalyptus_log",
+    "side0_overlay": "regions_unexplored:block/eucalyptus_log_overlay",
+    "side1_overlay": "regions_unexplored:block/eucalyptus_log_overlay",
+    "side2_overlay": "regions_unexplored:block/eucalyptus_log_overlay",
+    "side3_overlay": "regions_unexplored:block/eucalyptus_log_overlay",
+    "end": "regions_unexplored:block/eucalyptus_log_top",
+    "side0_edges": "minecraft:block/log_edge_sm",
+    "side1_edges": "minecraft:block/log_edge_sm",
+    "side2_edges": "minecraft:block/log_edge_sm",
+    "side3_edges": "minecraft:block/log_edge_sm"
+  }
+}

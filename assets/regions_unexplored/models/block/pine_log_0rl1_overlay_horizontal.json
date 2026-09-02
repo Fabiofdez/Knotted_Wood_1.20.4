@@ -1,0 +1,19 @@
+{
+  "parent": "minecraft:block/template_log_overlay_horizontal",
+  "textures": {
+    "particle": "regions_unexplored:block/pine_log",
+    "side0": "regions_unexplored:block/pine_log",
+    "side1": "regions_unexplored:block/pine_log_side_right",
+    "side2": "regions_unexplored:block/pine_log_side_left",
+    "side3": "regions_unexplored:block/pine_log_side_sm",
+    "side0_overlay": "regions_unexplored:block/pine_log_transition",
+    "side1_overlay": "minecraft:block/blank",
+    "side2_overlay": "minecraft:block/blank",
+    "side3_overlay": "minecraft:block/blank",
+    "end": "regions_unexplored:block/pine_log_top_31",
+    "side0_edges": "minecraft:block/blank",
+    "side1_edges": "minecraft:block/blank",
+    "side2_edges": "minecraft:block/blank",
+    "side3_edges": "minecraft:block/blank"
+  }
+}

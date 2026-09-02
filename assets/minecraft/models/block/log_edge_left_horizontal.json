@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/template_edge_face_horizontal",
-  "render_type": "translucent",
-  "textures": {
-    "texture": "minecraft:block/log_edge_left"
-  }
-}

@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/template_single_face",
-  "textures": {
-    "texture": "regions_unexplored:block/ashen_bark_11"
-  }
-}

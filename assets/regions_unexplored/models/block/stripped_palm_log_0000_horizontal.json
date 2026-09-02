@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:block/template_log_horizontal",
+  "textures": {
+    "particle": "regions_unexplored:block/stripped_palm_log",
+    "side0": "regions_unexplored:block/stripped_palm_log",
+    "side1": "regions_unexplored:block/stripped_palm_log",
+    "side2": "regions_unexplored:block/stripped_palm_log",
+    "side3": "regions_unexplored:block/stripped_palm_log",
+    "end": "regions_unexplored:block/stripped_palm_log_top",
+    "side0_edges": "minecraft:block/log_edge_sm",
+    "side1_edges": "minecraft:block/log_edge_sm",
+    "side2_edges": "minecraft:block/log_edge_sm",
+    "side3_edges": "minecraft:block/log_edge_sm"
+  }
+}

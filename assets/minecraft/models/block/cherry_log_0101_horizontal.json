@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:block/template_log_horizontal",
+  "textures": {
+    "particle": "minecraft:block/cherry_log",
+    "side0": "minecraft:block/cherry_log",
+    "side1": "minecraft:block/cherry_log_side_sm",
+    "side2": "minecraft:block/cherry_log",
+    "side3": "minecraft:block/cherry_log_side_sm",
+    "end": "minecraft:block/cherry_log_top_2",
+    "side0_edges": "minecraft:block/blank",
+    "side1_edges": "minecraft:block/blank",
+    "side2_edges": "minecraft:block/blank",
+    "side3_edges": "minecraft:block/blank"
+  }
+}

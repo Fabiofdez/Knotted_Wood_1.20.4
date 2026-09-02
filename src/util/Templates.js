@@ -1,65 +1,13 @@
-import { Dir } from "@const/Directories";
+import { MODELLED_SIDES, SIDES_TO_TOP_IDX } from "@const/LogSides";
 import { Ctx } from "@const/RunContext";
 import { WoodTypes } from "@const/WoodTypes";
-import { WoodFacts } from "@util/Wood";
 import { execSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 
 /** @type {{ [k: WoodType]: WoodResIdMapping }} */
 const MODEL_CACHE = {};
 
-const SIDES_TO_TOP = [
-  "0000",
-  "0100",
-  "0101",
-  "0001",
-  "0110",
-  "0011",
-  "1110",
-  "0111",
-  "rl11",
-  "1rl1",
-  "l1r2",
-  "2l1r",
-  "0010",
-  "0rl0",
-  "0r2l",
-  "00rl",
-  "1100",
-  "1001",
-  "1101",
-  "1011",
-  "l11r",
-  "11rl",
-  "1r2l",
-  "r2l1",
-  "1010",
-  "r2l0",
-  "2222",
-  "l0r2",
-  "1rl0",
-  "01rl",
-  "rl10",
-  "0rl1",
-  "2lr2",
-  "22lr",
-  "rlrl",
-  "lrlr",
-  "1000",
-  "rl00",
-  "2l0r",
-  "l00r",
-  "rl01",
-  "l01r",
-  "l10r",
-  "10rl",
-  "lr22",
-  "r22l",
-  "1111",
-];
-
-const NUMBERED_TOPS = [...SIDES_TO_TOP.keys()].slice(1);
-
+const _O = "_overlay";
 const _H = "_horizontal";
 
 /**
@@ -96,6 +44,81 @@ function logEdges() {
     LEFT: "log_edge_left",
     RIGHT: "log_edge_right",
   };
+}
+
+/** @param {BaseWoodAssets} wood */
+function particleResId(wood) {
+  const overlay = WoodTypes.getOverlay(wood);
+  if (overlay) return wood.resId() + _O;
+  return wood.resId();
+}
+
+/**
+ * @param {BaseWoodAssets} wood
+ * @param {ModelledSide} sides
+ */
+function logResId(wood, sides) {
+  return `${wood.logAsset}_${sides}`;
+}
+
+/**
+ * @param {BaseWoodAssets} wood
+ * @param {ModelledSide} sides
+ */
+function topResId(wood, sides) {
+  const idx = SIDES_TO_TOP_IDX[sides];
+  if (idx === 0) return resIds(wood).TOP;
+  return `${resIds(wood).TOP}_${idx}`;
+}
+
+/**
+ * @param {BaseWoodAssets} wood
+ * @param {"0" | "1" | "l" | "r" | "2"} sideBit
+ */
+function sideResId(wood, sideBit) {
+  switch (sideBit) {
+    case "0":
+      return wood.resId();
+    case "1":
+      return resIds(wood).SM;
+    case "l":
+      return resIds(wood).LEFT;
+    case "r":
+      return resIds(wood).RIGHT;
+    case "2":
+      return resIds(wood).CORE;
+  }
+}
+
+/**
+ * @param {BaseWoodAssets} wood
+ * @param {"0" | "1" | "l" | "r" | "2"} sideBit
+ */
+function overlayResId(wood, sideBit) {
+  if (sideBit != "0") return "minecraft:block/blank";
+
+  const condOverlay = WoodTypes.conditionalOverlay(wood);
+  const overlay = WoodTypes.getOverlay(wood);
+
+  if (overlay) return wood.resId() + _O;
+  else if (condOverlay) return wood.resId(condOverlay.overlayTexture);
+  else return "minecraft:block/blank";
+}
+
+/**
+ * @param {ModelledSide} sides
+ * @param {number} idx
+ */
+function edgeResId(sides, idx) {
+  /** @type {("0" | "1" | "l" | "r" | "2")[]} */
+  const sideBits = [sides.slice(-1), ...sides, sides[0]];
+  const [before, curr, after] = sideBits.slice(idx, idx + 3);
+  if (curr !== "0") return "minecraft:block/blank";
+
+  if (before === "0" && after === "0") return mcId(logEdges().SM);
+  else if (before === "0") return mcId(logEdges().RIGHT);
+  else if (after === "0") return mcId(logEdges().LEFT);
+  else return "minecraft:block/blank";
 }
 
 /**
@@ -150,18 +173,6 @@ function withProperties(wood, properties = [], withOverlay = false) {
   return output;
 }
 
-/**
- * @param {BaseWoodAssets} wood
- * @param {keyof LogFaceMapping} side
- * @returns {Replacement}
- */
-function sideTexture(wood, side) {
-  return {
-    regex: /TEMPLATE_TEXTURE/g,
-    value: side === "BARK" ? wood.resId() : resIds(wood)[side],
-  };
-}
-
 /** @type {TemplateProvider<BaseWoodAssets>} */
 const build = (T) => ({
   defineFor(wood) {
@@ -194,140 +205,41 @@ const buildCTM = build;
 const buildFusion = build;
 
 const LogModels = {
-  /** @type {LogModelTemplateProvider<keyof LogFaceMapping, BaseWoodAssets>} */
-  buildSides: (defProvider) => ({
+  /** @type {LogModelTemplateProvider<ModelledSide, BaseWoodAssets>} */
+  build: (defProvider) => ({
     defineFor(wood) {
-      const { TOP, ...logSides } = wood.logFaces();
+      const models = MODELLED_SIDES.map((sides) => [
+        sides,
+        logResId(wood, sides),
+      ]);
 
+      let transform = (def) => def;
       const overlay = WoodTypes.getOverlay(wood);
-      if (typeof overlay === "string") {
-        const barkModel = logSides.BARK;
-        delete logSides.BARK;
+      if (overlay) transform = (def) => withOverlay(def, overlay);
 
-        let def = withOverlay(defProvider("BARK", barkModel), overlay);
-        build(def).defineFor(wood);
-
-        def = withOverlay(defProvider("BARK", barkModel + _H), overlay);
-        build(makeHorizontal(def)).defineFor(wood);
-      }
-
-      Object.entries(logSides)
-        .map(([side, model]) => defProvider(side, model))
+      models
+        .map(([sides, model]) => defProvider(sides, model))
+        .map((def) => transform(def))
         .forEach((def) => build(def).defineFor(wood));
 
-      Object.entries(logSides)
-        .map(([side, model]) => defProvider(side, model + _H))
+      models
+        .map(([sides, model]) => defProvider(sides, model + _H))
+        .map((def) => transform(def))
         .forEach((def) => build(makeHorizontal(def)).defineFor(wood));
-    },
-  }),
 
-  /** @type {LogModelTemplateProvider<Number, BaseWoodAssets>} */
-  buildTops: (defProvider) => ({
-    defineFor(wood) {
-      const model = wood.logFaces().TOP;
+      if (!WoodTypes.conditionalOverlay(wood)) return;
 
-      NUMBERED_TOPS.map((idx) => defProvider(idx, model)).forEach((def) =>
-        build(def).defineFor(wood),
-      );
-    },
-  }),
+      const overlayModels = models
+        .filter(([sides]) => sides.includes("0"))
+        .map(([sides, model]) => [sides, model + _O]);
 
-  /** @type {LogModelTemplateProvider<Number, BaseWoodAssets>} */
-  buildDefaultTops: (defProvider) => ({
-    defineFor(wood) {
-      const model = wood.logFaces().TOP;
-      return build(defProvider(0, model)).defineFor(wood);
-    },
-  }),
-
-  /** @type {EdgeModelTemplateProvider} */
-  buildEdges: (defProvider) => ({
-    defineAll() {
-      const edges = logEdges();
-
-      Object.entries(edges)
-        .map(([side, model]) => defProvider(side, model))
-        .forEach((def) => build(def).defineFor());
-
-      Object.entries(edges)
-        .map(([side, model]) => defProvider(side, model + _H))
-        .forEach((def) => build(makeHorizontal(def)).defineFor());
-    },
-  }),
-};
-
-const BarkModels = {
-  /** @type {BarkModelTemplateProvider<Number, BaseWoodAssets>} */
-  buildVariants: (defProvider) => ({
-    defineFor(wood) {
-      const variants = wood.barkVariants();
-      if (WoodFacts.isStripped(wood)) variants.push(wood.logFaces().BARK);
-
-      variants
-        .map((model, idx) => defProvider(idx, model))
+      overlayModels
+        .map(([sides, model]) => withOverlay(defProvider(sides, model)))
         .forEach((def) => build(def).defineFor(wood));
 
-      variants
-        .map((model, idx) => defProvider(idx, model + _H))
+      overlayModels
+        .map(([sides, model]) => withOverlay(defProvider(sides, model + _H)))
         .forEach((def) => build(makeHorizontal(def)).defineFor(wood));
-    },
-  }),
-
-  /** @type {BarkModelTemplateProvider<Number, BaseWoodAssets>} */
-  buildOverlayVariants: (defProvider) => ({
-    defineFor(wood) {
-      const variants = [...wood.barkVariants(), wood.logFaces().BARK].map(
-        (model) => `${model}_overlay`,
-      );
-
-      variants
-        .map((model, idx) => withOverlay(defProvider(idx, model)))
-        .forEach((def) => build(def).defineFor(wood));
-
-      variants
-        .map((model, idx) => withOverlay(defProvider(idx, model + _H)))
-        .forEach((def) => build(makeHorizontal(def)).defineFor(wood));
-    },
-  }),
-};
-
-const PropetiesCTM = {
-  /** @type {EdgeCTMTemplateProvider} */
-  buildLogEdges: (defProvider) => ({
-    defineAll(woodAssets) {
-      const mappingsFile = `${Ctx.WORK_DIR}/templates/log_edges_ctm_mapping.json`;
-
-      /** @type {MappingCTM[]} */
-      const mappings = JSON.parse(readFileSync(mappingsFile).toString())?.files;
-
-      const isBase = (wood) => !WoodTypes.getOverlay(wood);
-      const isAlt = (wood) => {
-        return WoodTypes.getOverlay(wood) || WoodTypes.conditionalOverlay(wood);
-      };
-
-      const baseWoods = woodAssets.filter(isBase);
-      const altWoods = woodAssets.filter(isAlt);
-
-      mappings.forEach((mapping) => {
-        /** @type {typeof mapping} */
-        const baseMapping = JSON.parse(JSON.stringify(mapping));
-        baseMapping.matchBlocks = baseWoods
-          .map((wood) => withProperties(wood, baseMapping.properties))
-          .join(" ");
-
-        build(defProvider(baseMapping)).defineFor();
-        if (!altWoods.length) return;
-
-        /** @type {typeof mapping} */
-        const altMapping = JSON.parse(JSON.stringify(mapping));
-        altMapping.fileName += "_alt";
-        altMapping.tiles += "_alt";
-        altMapping.matchBlocks = altWoods
-          .map((wood) => withProperties(wood, altMapping.properties, true))
-          .join(" ");
-
-        build(defProvider(altMapping)).defineFor();
-      });
     },
   }),
 };
@@ -342,13 +254,6 @@ function rotate(axes = {}) {
 }
 
 /** @type {WoodMultiPredicate<BaseWoodAssets>} */
-const modelBarkReplacements = (wood) => [
-  { regex: /T_LOG_BARK/g, value: resIds(wood).BARK },
-  { regex: /T_BARK/g, value: wood.resId(wood.bark()) },
-  { regex: /_H/g, value: _H },
-];
-
-/** @type {WoodMultiPredicate<BaseWoodAssets>} */
 const modelConditionReplacement = (wood) => ({
   regex: /CONDITION_PROP/g,
   value: WoodTypes.conditionalOverlay(wood)?.conditionName,
@@ -357,50 +262,30 @@ const modelConditionReplacement = (wood) => ({
 /** @type {Replacement[]} */
 const modelOrientationReplacements = [
   { regex: /",[\s\n]*"X_0": "TEMPLATE"/g, value: rotate() },
-  { regex: /",[\s\n]*"X_1": "TEMPLATE"/g, value: rotate({ x: 90 }) },
+  { regex: /",[\s\n]*"X_1": "TEMPLATE"/g, value: rotate({ x: -90 }) },
   { regex: /",[\s\n]*"X_2": "TEMPLATE"/g, value: rotate({ x: 180 }) },
-  { regex: /",[\s\n]*"X_3": "TEMPLATE"/g, value: rotate({ x: 270 }) },
+  { regex: /",[\s\n]*"X_3": "TEMPLATE"/g, value: rotate({ x: 90 }) },
 
   { regex: /",[\s\n]*"Y_0": "TEMPLATE"/g, value: rotate() },
-  { regex: /",[\s\n]*"Y_1": "TEMPLATE"/g, value: rotate({ y: 90 }) },
+  { regex: /",[\s\n]*"Y_1": "TEMPLATE"/g, value: rotate({ y: -90 }) },
   { regex: /",[\s\n]*"Y_2": "TEMPLATE"/g, value: rotate({ y: 180 }) },
-  { regex: /",[\s\n]*"Y_3": "TEMPLATE"/g, value: rotate({ y: 270 }) },
+  { regex: /",[\s\n]*"Y_3": "TEMPLATE"/g, value: rotate({ y: 90 }) },
 
   { regex: /",[\s\n]*"Z_0": "TEMPLATE"/g, value: rotate({ y: 90 }) },
-  { regex: /",[\s\n]*"Z_1": "TEMPLATE"/g, value: rotate({ x: 90, y: 90 }) },
+  { regex: /",[\s\n]*"Z_1": "TEMPLATE"/g, value: rotate({ x: -90, y: 90 }) },
   { regex: /",[\s\n]*"Z_2": "TEMPLATE"/g, value: rotate({ x: 180, y: 90 }) },
-  { regex: /",[\s\n]*"Z_3": "TEMPLATE"/g, value: rotate({ x: -90, y: 90 }) },
+  { regex: /",[\s\n]*"Z_3": "TEMPLATE"/g, value: rotate({ x: 90, y: 90 }) },
 ];
 
 /** @type {TemplateDef<BaseWoodAssets>} */
 const logBlockStateDef = {
   output: (wood) => `${wood.blockstatesDir}/${wood.logAsset}.json`,
   replacer: (wood) => [
-    { regex: /TEMPLATE_LOG_DEFAULT/g, value: wood.resId() },
-    { regex: /TEMPLATE_LOG_SM/g, value: resIds(wood).SM },
-    { regex: /TEMPLATE_LOG_LEFT/g, value: resIds(wood).LEFT },
-    { regex: /TEMPLATE_LOG_RIGHT/g, value: resIds(wood).RIGHT },
-    { regex: /TEMPLATE_LOG_CORE/g, value: resIds(wood).CORE },
-    { regex: /TEMPLATE_LOG_TOP/g, value: resIds(wood).TOP },
-    ...modelBarkReplacements(wood),
+    { regex: /TEMPLATE_LOG/g, value: wood.resId() },
+    { regex: /_H/g, value: _H },
 
+    ...modelOrientationReplacements,
     modelConditionReplacement(wood),
-
-    { regex: /TEMPLATE_LOG_EDGES_SM/g, value: mcId(logEdges().SM) },
-    { regex: /TEMPLATE_LOG_EDGES_LEFT/g, value: mcId(logEdges().LEFT) },
-    { regex: /TEMPLATE_LOG_EDGES_RIGHT/g, value: mcId(logEdges().RIGHT) },
-
-    ...modelOrientationReplacements,
-  ],
-  postProcess: (json) => JSON.stringify(JSON.parse(json)),
-};
-
-/** @type {TemplateDef<BaseWoodAssets>} */
-const woodBlockStateDef = {
-  output: (wood) => `${wood.blockstatesDir}/${wood.woodAsset}.json`,
-  replacer: (wood) => [
-    ...modelBarkReplacements(wood),
-    ...modelOrientationReplacements,
   ],
   postProcess: (json) => JSON.stringify(JSON.parse(json)),
 };
@@ -412,142 +297,54 @@ export const Templates = {
       ...logBlockStateDef,
     }),
 
-    LOG_NO_VARIANTS: build({
-      baseFile: "blockstates/log_no_variants.json",
-      ...logBlockStateDef,
-    }),
-
     LOG_OVERLAY: build({
       baseFile: "blockstates/log_conditional_overlay.json",
       ...logBlockStateDef,
     }),
-
-    STRIPPED_LOG: build({
-      baseFile: "blockstates/stripped_log.json",
-      ...logBlockStateDef,
-    }),
-
-    WOOD: build({
-      baseFile: "blockstates/wood.json",
-      ...woodBlockStateDef,
-    }),
-
-    WOOD_NO_VARIANTS: build({
-      baseFile: "blockstates/wood_no_variants.json",
-      ...woodBlockStateDef,
-    }),
   },
 
   MODELS: {
-    LOG_SIDES: LogModels.buildSides((side, model) => ({
-      baseFile: "models/side.json",
-      output: (wood) => `${wood.modelsDir}/${model}.json`,
-      replacer: (wood) => sideTexture(wood, side),
-    })),
-
-    LOG_TOPS: LogModels.buildTops((idx, model) => ({
-      baseFile: "models/log_top.json",
-      output: (wood) => `${wood.modelsDir}/${model}_${idx}.json`,
-      replacer: (wood) => ({
-        regex: /TEMPLATE_LOG_TEXTURE/g,
-        value: `${resIds(wood).TOP}_${idx}`,
-      }),
-    })),
-
-    DEFAULT_LOG_TOPS: LogModels.buildDefaultTops((_, model) => ({
-      baseFile: "models/log_top.json",
-      output: (wood) => `${wood.modelsDir}/${model}.json`,
-      replacer: (wood) => ({
-        regex: /TEMPLATE_LOG_TEXTURE/g,
-        value: resIds(wood).TOP,
-      }),
-    })),
-
-    LOG_EDGES: LogModels.buildEdges((side, model) => ({
-      baseFile: "models/log_edge.json",
-      output: `${Ctx.WORK_DIR}/${Dir.models()}/block/${model}.json`,
-      replacer: {
-        regex: /TEMPLATE_EDGE_TEXTURE/g,
-        value: mcId(logEdges()[side]),
-      },
-    })),
-
-    BARK_VARIANTS: BarkModels.buildVariants((idx, model) => ({
-      baseFile: "models/side.json",
-      output: (wood) => `${wood.modelsDir}/${model}.json`,
-      replacer: (wood) => ({
-        regex: /TEMPLATE_TEXTURE/g,
-        value: idx >= 12 ? wood.resId() : resIds(wood).VARIANTS[idx],
-      }),
-    })),
-
-    BARK_OVERLAY_VARIANTS: BarkModels.buildOverlayVariants((idx, model) => ({
-      baseFile: "models/side.json",
+    LOG: LogModels.build((sides, model) => ({
+      baseFile: "models/log.json",
       output: (wood) => `${wood.modelsDir}/${model}.json`,
       replacer: (wood) => [
-        {
-          regex: /TEMPLATE_TEXTURE_overlay/g,
-          value: wood.resId(WoodTypes.conditionalOverlay(wood).overlayTexture),
-        },
-        {
-          regex: /TEMPLATE_TEXTURE/g,
-          value: idx >= 12 ? wood.resId() : resIds(wood).VARIANTS[idx],
-        },
+        { regex: /TEMPLATE_PARTICLE/g, value: particleResId(wood) },
+
+        { regex: /TEMPLATE_SIDE0/g, value: sideResId(wood, sides[0]) },
+        { regex: /TEMPLATE_SIDE1/g, value: sideResId(wood, sides[1]) },
+        { regex: /TEMPLATE_SIDE2/g, value: sideResId(wood, sides[2]) },
+        { regex: /TEMPLATE_SIDE3/g, value: sideResId(wood, sides[3]) },
+
+        { regex: /TEMPLATE_TOPS/g, value: topResId(wood, sides) },
+
+        { regex: /TEMPLATE_EDGE0/g, value: edgeResId(sides, 0) },
+        { regex: /TEMPLATE_EDGE1/g, value: edgeResId(sides, 1) },
+        { regex: /TEMPLATE_EDGE2/g, value: edgeResId(sides, 2) },
+        { regex: /TEMPLATE_EDGE3/g, value: edgeResId(sides, 3) },
+
+        { regex: /TEMPLATE_OVERLAY0/g, value: overlayResId(wood, sides[0]) },
+        { regex: /TEMPLATE_OVERLAY1/g, value: overlayResId(wood, sides[1]) },
+        { regex: /TEMPLATE_OVERLAY2/g, value: overlayResId(wood, sides[2]) },
+        { regex: /TEMPLATE_OVERLAY3/g, value: overlayResId(wood, sides[3]) },
       ],
     })),
+
+    // TODO: modify wood models to have edges 
+    // (simple edges in model, full-fledged with ctm method)
   },
 
   CTM: {
-    LOG_VARIANTS: buildCTM({
-      baseFile: "template_log.properties",
-      output: (wood) => `${wood.variantsDir}/log.properties`,
-      replacer: (wood) => wood.logAsset,
+    VARIANTS: buildCTM({
+      baseFile: "variants.ctm.properties",
+      output: (wood) => `${wood.variantsDir}/variants.ctm.properties`,
+      replacer: (wood) => ({ regex: /TEMPLATE_TILE/g, value: wood.resId() }),
     }),
-
-    WOOD_VARIANTS: buildCTM({
-      baseFile: "template_wood.properties",
-      output: (wood) => `${wood.variantsDir}/wood.properties`,
-      replacer: (wood) => wood.woodBlock,
-    }),
-
-    TOP: buildCTM({
-      baseFile: "top.ctm.properties",
-      output: (wood) => `${wood.topsDir}/ctm.properties`,
-      replacer: (wood) => wood.logBlock,
-    }),
-
-    // TODO: fill in ctm.properties for log edges,
-    // replacing the following:
-
-    // TEMPLATE_MATCH_BLOCKS
-    // TEMPLATE_TILES
-    // TEMPLATE_FACES
-    LOG_EDGES: PropetiesCTM.buildLogEdges((mapping) => ({
-      baseFile: "template_log_edges.ctm.properties",
-      output: `${Ctx.WORK_DIR}/${Dir.CTM.ROOT}/log_edges/${mapping.fileName}.ctm.properties`,
-      replacer: [
-        { regex: /TEMPLATE_MATCH_BLOCKS/g, value: mapping.matchBlocks },
-        { regex: /TEMPLATE_TILES/g, value: mapping.tiles },
-        { regex: /TEMPLATE_FACES/g, value: mapping.faces },
-      ],
-    })),
   },
 
   Fusion: {
-    LOG_VARIANTS: buildFusion({
+    VARIANTS: buildFusion({
       baseFile: "variants.png.mcmeta",
       output: (wood) => `${wood.texturesDir}/${wood.logAsset}.png.mcmeta`,
-    }),
-
-    WOOD_VARIANTS: buildFusion({
-      baseFile: "variants.png.mcmeta",
-      output: (wood) => `${wood.texturesDir}/${wood.woodAsset}.png.mcmeta`,
-    }),
-
-    TOP: buildFusion({
-      baseFile: "top.png.mcmeta",
-      output: (wood) => `${wood.texturesDir}/${wood.logAsset}_top.png.mcmeta`,
-      replacer: (w) => w.logBlock,
     }),
   },
 };

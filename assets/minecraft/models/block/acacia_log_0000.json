@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:block/template_log",
+  "textures": {
+    "particle": "minecraft:block/acacia_log",
+    "side0": "minecraft:block/acacia_log",
+    "side1": "minecraft:block/acacia_log",
+    "side2": "minecraft:block/acacia_log",
+    "side3": "minecraft:block/acacia_log",
+    "end": "minecraft:block/acacia_log_top",
+    "side0_edges": "minecraft:block/log_edge_sm",
+    "side1_edges": "minecraft:block/log_edge_sm",
+    "side2_edges": "minecraft:block/log_edge_sm",
+    "side3_edges": "minecraft:block/log_edge_sm"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "parent": "minecraft:block/template_log_overlay_tint",
+  "textures": {
+    "particle": "TEMPLATE_PARTICLE",
+    "side0": "TEMPLATE_SIDE0",
+    "side1": "TEMPLATE_SIDE1",
+    "side2": "TEMPLATE_SIDE2",
+    "side3": "TEMPLATE_SIDE3",
+    "side0_overlay": "TEMPLATE_OVERLAY0",
+    "side1_overlay": "TEMPLATE_OVERLAY1",
+    "side2_overlay": "TEMPLATE_OVERLAY2",
+    "side3_overlay": "TEMPLATE_OVERLAY3",
+    "end": "TEMPLATE_TOPS",
+    "side0_edges": "TEMPLATE_EDGE0",
+    "side1_edges": "TEMPLATE_EDGE1",
+    "side2_edges": "TEMPLATE_EDGE2",
+    "side3_edges": "TEMPLATE_EDGE3"
+  }
+}

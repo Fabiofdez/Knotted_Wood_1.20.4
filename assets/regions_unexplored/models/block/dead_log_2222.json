@@ -1,0 +1,15 @@
+{
+  "parent": "minecraft:block/template_log",
+  "textures": {
+    "particle": "regions_unexplored:block/dead_log",
+    "side0": "regions_unexplored:block/dead_log_side_core",
+    "side1": "regions_unexplored:block/dead_log_side_core",
+    "side2": "regions_unexplored:block/dead_log_side_core",
+    "side3": "regions_unexplored:block/dead_log_side_core",
+    "end": "regions_unexplored:block/dead_log_top_26",
+    "side0_edges": "minecraft:block/blank",
+    "side1_edges": "minecraft:block/blank",
+    "side2_edges": "minecraft:block/blank",
+    "side3_edges": "minecraft:block/blank"
+  }
+}

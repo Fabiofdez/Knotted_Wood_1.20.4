@@ -1,4 +1,5 @@
 import { Dir } from "@const/Directories";
+import { SIDES_TO_TOP_IDX } from "@const/LogSides";
 import { Ctx } from "@const/RunContext";
 import { SpriteType } from "@const/SpriteTypes";
 import { WoodTypes } from "@const/WoodTypes";
@@ -9,6 +10,8 @@ import { existsSync, readdirSync } from "node:fs";
 import { extname } from "node:path";
 
 const { TOPS, SIDES, VARIANT } = SpriteType;
+
+const MODELLED_TOPS = Object.values(SIDES_TO_TOP_IDX);
 
 /** @param {string[]} args */
 function cleanArgs(args = []) {
@@ -173,6 +176,10 @@ export const SpriteMaker = {
           dst: `${wood.texturesDir}/${logFaces[side]}.png`,
         }))
         .forEach(({ src, dst }) => execSync(`cp ${src} ${dst}`));
+
+      if (addDefaultSprite(tmpDir, wood)) {
+        execSync(`mv ${tmpDir}/0.png ${wood.texturesDir}/${wood.logAsset}.png`);
+      }
     },
 
     /**
@@ -184,6 +191,11 @@ export const SpriteMaker = {
 
       if (!splitSprites(tmpDir, wood)) return;
       execSync(`rm -f ${tmpDir}/47.png`);
+
+      for (let idx = 0; idx < 47; idx++) {
+        if (MODELLED_TOPS.includes(idx)) continue;
+        execSync(`rm -f ${tmpDir}/${idx}.png`);
+      }
 
       const logTop = wood.logFaces().TOP;
       execSync(`mv ${tmpDir}/0.png ${tmpDir}/${logTop}.png`);
@@ -241,7 +253,6 @@ export const SpriteMaker = {
 
       const original = `${spritesPath}/${wood.assetPath}.png`;
       split({ cwd: tmpDir }, original, scene(1));
-      addDefaultSprite(tmpDir, wood);
 
       await filterChangedSprites(tmpDir, wood.variantsDir);
     },
@@ -291,7 +302,6 @@ export const SpriteMaker = {
       join({ cwd: tmpDir }, Sprites, outPath, ...MergeOpts);
 
       cleanDir({ cwd: tmpDir }, outFile);
-      execSync(`cp ${outFile} ${wood.woodAsset}.png`, { cwd: tmpDir });
       execSync(`mkdir -p out/ && mv *.png out/`, { cwd: tmpDir });
     },
 
@@ -344,7 +354,10 @@ export const SpriteMaker = {
       execSync(`mv out/* .`, { cwd: tmpDir });
 
       /** @type {typeof isPNG} */
-      const mask = (file) => isPNG(file) && file.startsWith(wood.type);
+      const isDefaultSprite = (file) => file.endsWith(`${wood.logAsset}.png`);
+
+      /** @type {typeof isPNG} */
+      const mask = (file) => isPNG(file) && isDefaultSprite(file);
 
       await filterChangedSprites(tmpDir, wood.texturesDir, mask);
     },
@@ -375,7 +388,10 @@ function hasSpritesheet(dir, wood) {
  */
 function addDefaultSprite(dir, wood) {
   const defaultSprite = `${Ctx.DOWNLOADS}/${Dir.DEFAULT_SPRITES}/${wood.assetPath}.png`;
+  if (!existsSync(defaultSprite)) return false;
+
   execSync(`cp ${defaultSprite} ${dir}/0.png`);
+  return true;
 }
 
 /** @param {Parameters<typeof execSync>[1]} cmdOpts */
