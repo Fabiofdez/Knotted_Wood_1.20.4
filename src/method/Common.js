@@ -4,7 +4,7 @@ import { WoodTypes } from "@const/WoodTypes";
 import { LOGGER } from "@util/Logger";
 import { SpriteMaker } from "@util/SpriteMaker";
 import { Templates } from "@util/Templates";
-import { Wood, WoodFacts } from "@util/Wood";
+import { Wood } from "@util/Wood";
 import { execSync } from "child_process";
 
 export const Common = {
@@ -32,10 +32,13 @@ export const Common = {
         return;
       }
 
+      Templates.BLOCKSTATES.WOOD.defineFor(wood);
+
       if (condOverlay) Templates.BLOCKSTATES.LOG_OVERLAY.defineFor(wood);
       else Templates.BLOCKSTATES.LOG.defineFor(wood);
 
       Templates.MODELS.LOG.defineFor(wood);
+      Templates.MODELS.WOOD.defineFor(wood);
     });
 
     console.log(`...updated '${wood.id}' wood type`);

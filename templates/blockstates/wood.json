@@ -1,0 +1,16 @@
+{
+  "multipart": [
+    {
+      "apply": { "model": "TEMPLATE_WOOD", "x": 90, "y": 90 },
+      "when": { "axis": "x" }
+    },
+    {
+      "apply": { "model": "TEMPLATE_WOOD" },
+      "when": { "axis": "y" }
+    },
+    {
+      "apply": { "model": "TEMPLATE_WOOD", "x": 90 },
+      "when": { "axis": "z" }
+    }
+  ]
+}

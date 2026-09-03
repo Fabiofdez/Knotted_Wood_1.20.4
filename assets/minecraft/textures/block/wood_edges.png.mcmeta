@@ -3,6 +3,6 @@
         "type": "connecting",
         "layout": "full",
         "render_type": "translucent",
-        "connections": [{ "type": "is_same_block" }]
+        "connections": [{ "type": "is_same_state" }]
     }
 }

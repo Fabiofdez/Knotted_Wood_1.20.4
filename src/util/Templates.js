@@ -94,7 +94,7 @@ function sideResId(wood, sideBit) {
  * @param {BaseWoodAssets} wood
  * @param {"0" | "1" | "l" | "r" | "2"} sideBit
  */
-function overlayResId(wood, sideBit) {
+function overlayResId(wood, sideBit = "0") {
   if (sideBit != "0") return "minecraft:block/blank";
 
   const condOverlay = WoodTypes.conditionalOverlay(wood);
@@ -204,9 +204,9 @@ const buildCTM = build;
 /** @type {TemplateProvider<WoodAssetsFusion>} */
 const buildFusion = build;
 
-const LogModels = {
+const Models = {
   /** @type {LogModelTemplateProvider<ModelledSide, BaseWoodAssets>} */
-  build: (defProvider) => ({
+  buildLog: (defProvider) => ({
     defineFor(wood) {
       const models = MODELLED_SIDES.map((sides) => [
         sides,
@@ -240,6 +240,17 @@ const LogModels = {
       overlayModels
         .map(([sides, model]) => withOverlay(defProvider(sides, model + _H)))
         .forEach((def) => build(makeHorizontal(def)).defineFor(wood));
+    },
+  }),
+
+  /** @type {TemplateProvider<BaseWoodAssets>} */
+  buildWood: (def) => ({
+    defineFor(wood) {
+      let transform = (def) => def;
+      const overlay = WoodTypes.getOverlay(wood);
+      if (overlay) transform = (def) => withOverlay(def, overlay);
+
+      build(transform({ ...def })).defineFor(wood);
     },
   }),
 };
@@ -301,10 +312,20 @@ export const Templates = {
       baseFile: "blockstates/log_conditional_overlay.json",
       ...logBlockStateDef,
     }),
+
+    WOOD: build({
+      baseFile: "blockstates/wood.json",
+      output: (wood) => `${wood.blockstatesDir}/${wood.woodAsset}.json`,
+      replacer: (wood) => ({
+        regex: /TEMPLATE_WOOD/g,
+        value: wood.resId(`${wood.woodAsset}_custom`),
+      }),
+      postProcess: (json) => JSON.stringify(JSON.parse(json)),
+    }),
   },
 
   MODELS: {
-    LOG: LogModels.build((sides, model) => ({
+    LOG: Models.buildLog((sides, model) => ({
       baseFile: "models/log.json",
       output: (wood) => `${wood.modelsDir}/${model}.json`,
       replacer: (wood) => [
@@ -329,8 +350,15 @@ export const Templates = {
       ],
     })),
 
-    // TODO: modify wood models to have edges 
-    // (simple edges in model, full-fledged with ctm method)
+    WOOD: Models.buildWood({
+      baseFile: "models/wood.json",
+      output: (wood) => `${wood.modelsDir}/${wood.woodAsset}_custom.json`,
+      replacer: (wood) => [
+        { regex: /TEMPLATE_PARTICLE/g, value: particleResId(wood) },
+        { regex: /TEMPLATE_BARK/g, value: wood.resId() },
+        { regex: /TEMPLATE_OVERLAY/g, value: overlayResId(wood) },
+      ],
+    }),
   },
 
   CTM: {

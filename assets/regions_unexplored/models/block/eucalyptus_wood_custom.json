@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/template_wood_overlay_tint",
+  "textures": {
+    "particle": "regions_unexplored:block/eucalyptus_log_overlay",
+    "bark": "regions_unexplored:block/eucalyptus_log",
+    "overlay": "regions_unexplored:block/eucalyptus_log_overlay",
+    "edges": "minecraft:block/wood_edges"
+  }
+}

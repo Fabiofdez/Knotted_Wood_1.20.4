@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_wood",
+  "textures": {
+    "particle": "regions_unexplored:block/ashen_log",
+    "bark": "regions_unexplored:block/ashen_log",
+    "edges": "minecraft:block/wood_edges"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/template_wood_overlay",
+  "textures": {
+    "particle": "TEMPLATE_PARTICLE",
+    "bark": "TEMPLATE_BARK",
+    "overlay": "TEMPLATE_OVERLAY",
+    "edges": "minecraft:block/wood_edges"
+  }
+}

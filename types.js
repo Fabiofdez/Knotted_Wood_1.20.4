@@ -11,10 +11,10 @@
  */
 
 /**
- * @typedef {typeof import("@const/LogSides")["MODELLED_SIDES"]} ModelledSides
+ * @typedef {(typeof import("@const/LogSides"))["MODELLED_SIDES"]} ModelledSides
+ *
  *
  * @typedef {ModelledSides[number]} ModelledSide
- *
  *
  * @typedef {ReturnType<BaseWoodAssets["logFaces"]>} LogFaceMapping
  *
@@ -74,6 +74,11 @@
  * @typedef {(
  *   defProvider: (arg1: T, model: string) => TemplateDef<U>,
  * ) => PropTemplate<U>} LogModelTemplateProvider
+ */
+
+/**
+ * @template T
+ * @typedef {(defProvider: TemplateDef<T>) => PropTemplate<T>} WoodModelTemplateProvider
  */
 
 /**

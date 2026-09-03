@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_wood",
+  "textures": {
+    "particle": "minecraft:block/jungle_log",
+    "bark": "minecraft:block/jungle_log",
+    "edges": "minecraft:block/wood_edges"
+  }
+}

@@ -1,8 +1,5 @@
 import { Dir } from "@const/Directories";
 
-const mcModels = Dir.models();
-const mcTextures = Dir.textures();
-
 /** @satisfies {{ [k: string]: ZipInfo }} */
 export const Zip = /** @type {const} */ ({
   Common: {
@@ -10,8 +7,7 @@ export const Zip = /** @type {const} */ ({
     include: ["assets/*/blockstates", "assets/*/models", "assets/*/textures"],
     exclude: [
       "assets/*/textures/block/*.png.mcmeta",
-      `${mcModels}/block/wood_edges.json`,
-      `${mcTextures}/block/wood_edges.*`,
+      `${Dir.models()}/block/wood_edges.json`,
     ],
     mcMeta: "default.pack.mcmeta",
   },
@@ -25,10 +21,8 @@ export const Zip = /** @type {const} */ ({
   Fusion: {
     packName: "pack-standalone-fusion.zip",
     include: [
-      "assets/minecraft/fusion",
       "assets/*/textures/block/*_log.*",
-      `${mcModels}/block/wood_edges.json`,
-      `${mcTextures}/block/wood_edges.*`,
+      `${Dir.textures()}/block/wood_edges.*`,
     ],
     mcMeta: "fusion.pack.mcmeta",
   },

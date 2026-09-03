@@ -1,0 +1,1 @@
+{"multipart":[{"apply":{"model":"regions_unexplored:block/stripped_cobalt_wood_custom","x":90,"y":90},"when":{"axis":"x"}},{"apply":{"model":"regions_unexplored:block/stripped_cobalt_wood_custom"},"when":{"axis":"y"}},{"apply":{"model":"regions_unexplored:block/stripped_cobalt_wood_custom","x":90},"when":{"axis":"z"}}]}

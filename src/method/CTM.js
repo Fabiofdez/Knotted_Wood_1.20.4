@@ -89,8 +89,6 @@ export const CTM = {
     console.log(`Updating all ${allWoods.length} wood types...`);
 
     const woodAssets = allWoods.map((wood) => Wood.assetsCTM(wood));
-    CTM.updateEdges(woodAssets);
-
     for (const wood of woodAssets) {
       CTM.updateWood(wood);
     }

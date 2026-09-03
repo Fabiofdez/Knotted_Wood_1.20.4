@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_wood",
+  "textures": {
+    "particle": "minecraft:block/stripped_cherry_log",
+    "bark": "minecraft:block/stripped_cherry_log",
+    "edges": "minecraft:block/wood_edges"
+  }
+}

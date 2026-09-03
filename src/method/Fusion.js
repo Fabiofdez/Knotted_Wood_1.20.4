@@ -110,14 +110,12 @@ export const Fusion = {
     const allWoods = [...WoodTypes.VANILLA, ...WoodTypes.REGIONS_UNEXPLORED];
     console.log(`Updating all ${allWoods.length} wood types...`);
 
-    const woodAssets = allWoods.map((wood) => Wood.assetsFusion(wood));
-    Fusion.updateEdges(woodAssets);
-
     Dir.makeTemp(`${Ctx.WORK_DIR}/tmp/fusion/edges`, async (dir) => {
       // await SpriteMaker.Fusion.updateLogEdgeSprites(dir);
       await SpriteMaker.Fusion.updateWoodEdgeSprites(dir);
     });
 
+    const woodAssets = allWoods.map((wood) => Wood.assetsFusion(wood));
     for (const wood of woodAssets) {
       Fusion.updateWood(wood);
     }
