@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/template_sapling_trunk_corner",
+	"textures": {
+		"log": "minecraft:block/acacia_log"
+	}
+}

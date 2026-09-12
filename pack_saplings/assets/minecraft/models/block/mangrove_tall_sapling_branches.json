@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/template_tall_sapling_branches",
+  "textures": {
+    "branches1": "minecraft:block/mangrove_sapling_branches",
+    "branches2": "minecraft:block/mangrove_sapling_branches2",
+    "leaves1": "minecraft:block/mangrove_sapling_leaves",
+    "leaves2": "minecraft:block/mangrove_sapling_leaves2"
+  }
+}

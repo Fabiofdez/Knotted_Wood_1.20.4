@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/template_giant_sapling_canopy_no_tint",
+  "textures": {
+    "canopy_side1": "minecraft:block/birch_leaves_overhang2",
+    "canopy_side2": "minecraft:block/birch_leaves_overhang",
+    "canopy_top": "minecraft:block/birch_leaves"
+  }
+}

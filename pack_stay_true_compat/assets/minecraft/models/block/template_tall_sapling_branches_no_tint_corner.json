@@ -1,0 +1,49 @@
+{
+  "format_version": "1.21.11",
+  "credit": "Made with Blockbench",
+  "textures": {
+    "particle": "#leaves1"
+  },
+  "elements": [
+    {
+      "name": "branches1",
+      "from": [0, -13, 16],
+      "to": [32, 19, 16],
+      "rotation": { "angle": 0, "axis": "y", "origin": [16, 3, 16] },
+      "faces": {
+        "north": { "uv": [0, 0, 16, 16], "texture": "#branches1" },
+        "south": { "uv": [16, 0, 0, 16], "texture": "#branches1" }
+      }
+    },
+    {
+      "name": "branches2",
+      "from": [16, -13, 0],
+      "to": [16, 19, 32],
+      "rotation": { "angle": 0, "axis": "y", "origin": [16, 3, 16] },
+      "faces": {
+        "east": { "uv": [16, 0, 0, 16], "texture": "#branches2" },
+        "west": { "uv": [0, 0, 16, 16], "texture": "#branches2" }
+      }
+    },
+    {
+      "name": "leaves1",
+      "from": [0, -13, 16],
+      "to": [32, 19, 16],
+      "rotation": { "angle": 0, "axis": "y", "origin": [16, 3, 16] },
+      "faces": {
+        "north": { "uv": [0, 0, 16, 16], "texture": "#leaves1" },
+        "south": { "uv": [16, 0, 0, 16], "texture": "#leaves1" }
+      }
+    },
+    {
+      "name": "leaves2",
+      "from": [16, -13, 0],
+      "to": [16, 19, 32],
+      "rotation": { "angle": 0, "axis": "y", "origin": [16, 3, 16] },
+      "faces": {
+        "east": { "uv": [16, 0, 0, 16], "texture": "#leaves2" },
+        "west": { "uv": [0, 0, 16, 16], "texture": "#leaves2" }
+      }
+    }
+  ]
+}

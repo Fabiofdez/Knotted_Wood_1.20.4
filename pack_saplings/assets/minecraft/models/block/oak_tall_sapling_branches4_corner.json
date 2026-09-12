@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/template_tall_sapling_branches_corner",
+  "textures": {
+    "branches1": "minecraft:block/oak_sapling_branches2",
+    "branches2": "minecraft:block/oak_sapling_branches",
+    "leaves1": "minecraft:block/oak_sapling_leaves2",
+    "leaves2": "minecraft:block/oak_sapling_leaves"
+  }
+}

@@ -1,0 +1,270 @@
+{
+  "multipart": [
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_sprout" },
+        { "model": "minecraft:block/mangrove_sprout2" },
+        { "model": "minecraft:block/mangrove_sprout3" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "2" },
+          { "tree_shape": "single|3x3" }
+        ]
+      }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_sprout" },
+        { "model": "minecraft:block/mangrove_sprout2" },
+        { "model": "minecraft:block/mangrove_sprout3" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "2" },
+          { "tree_shape": "2x2" },
+          { "tree_root": "north|northeast|east|southeast|south|southwest|west|northwest" }
+        ]
+      }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_sprout_corner" },
+        { "model": "minecraft:block/mangrove_sprout2_corner" },
+        { "model": "minecraft:block/mangrove_sprout3_corner" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "2" },
+          { "tree_shape": "2x2" },
+          { "tree_root": "self" }
+        ]
+      }
+    },
+
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_sapling" },
+        { "model": "minecraft:block/mangrove_sapling2" },
+        { "model": "minecraft:block/mangrove_sapling3" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "3" },
+          { "tree_shape": "single|3x3" }
+        ]
+      }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_sapling_corner" },
+        { "model": "minecraft:block/mangrove_sapling2_corner" },
+        { "model": "minecraft:block/mangrove_sapling3_corner" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "3" },
+          { "tree_shape": "2x2" }
+        ]
+      }
+    },
+
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_tall_sapling_branches" },
+        { "model": "minecraft:block/mangrove_tall_sapling_branches2" },
+        { "model": "minecraft:block/mangrove_tall_sapling_branches3" },
+        { "model": "minecraft:block/mangrove_tall_sapling_branches", "y": 90 },
+        { "model": "minecraft:block/mangrove_tall_sapling_branches2", "y": 90 },
+        { "model": "minecraft:block/mangrove_tall_sapling_branches3", "y": 90 }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "4" },
+          { "tree_shape": "single|3x3" }
+        ]
+      }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_tall_sapling_branches_corner" },
+        { "model": "minecraft:block/mangrove_tall_sapling_branches2_corner" },
+        { "model": "minecraft:block/mangrove_tall_sapling_branches3_corner" },
+        { "model": "minecraft:block/mangrove_tall_sapling_branches4_corner" },
+        { "model": "minecraft:block/mangrove_tall_sapling_branches5_corner" },
+        { "model": "minecraft:block/mangrove_tall_sapling_branches6_corner" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "4" },
+          { "tree_shape": "2x2" }
+        ]
+      }
+    },
+
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_giant_sapling_branches_corner" },
+        { "model": "minecraft:block/mangrove_giant_sapling_branches2_corner" },
+        { "model": "minecraft:block/mangrove_giant_sapling_branches3_corner" },
+        { "model": "minecraft:block/mangrove_giant_sapling_branches4_corner" },
+        { "model": "minecraft:block/mangrove_giant_sapling_branches5_corner" },
+        { "model": "minecraft:block/mangrove_giant_sapling_branches6_corner" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "5" },
+          { "tree_shape": "2x2" }
+        ]
+      }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_giant_sapling_canopy_corner" },
+        { "model": "minecraft:block/mangrove_giant_sapling_canopy2_corner" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "5" },
+          { "tree_shape": "2x2" }
+        ]
+      }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_giant_sapling_branches" },
+        { "model": "minecraft:block/mangrove_giant_sapling_branches2" },
+        { "model": "minecraft:block/mangrove_giant_sapling_branches3" },
+        { "model": "minecraft:block/mangrove_giant_sapling_branches", "y": 90 },
+        { "model": "minecraft:block/mangrove_giant_sapling_branches2", "y": 90 },
+        { "model": "minecraft:block/mangrove_giant_sapling_branches3", "y": 90 }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "5" },
+          { "tree_shape": "3x3" }
+        ]
+      }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_giant_sapling_canopy" },
+        { "model": "minecraft:block/mangrove_giant_sapling_canopy2" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "5" },
+          { "tree_shape": "3x3" }
+        ]
+      }
+    },
+
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_decaying_sprout" },
+        { "model": "minecraft:block/mangrove_decaying_sprout2" },
+        { "model": "minecraft:block/mangrove_decaying_sprout3" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "1" },
+          { "tree_shape": "single|3x3" }
+        ]
+      }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_decaying_sprout" },
+        { "model": "minecraft:block/mangrove_decaying_sprout2" },
+        { "model": "minecraft:block/mangrove_decaying_sprout3" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "1" },
+          { "tree_shape": "2x2" },
+          { "tree_root": "north|northeast|east|southeast|south|southwest|west|northwest" }
+        ]
+      }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_decaying_sprout_corner" },
+        { "model": "minecraft:block/mangrove_decaying_sprout2_corner" },
+        { "model": "minecraft:block/mangrove_decaying_sprout3_corner" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "1" },
+          { "tree_shape": "2x2" },
+          { "tree_root": "self" }
+        ]
+      }
+    },
+
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_decaying_sprout" },
+        { "model": "minecraft:block/mangrove_decaying_sprout2" },
+        { "model": "minecraft:block/mangrove_decaying_sprout3" }
+      ],
+      "when": {
+        "AND": [
+          { "hanging": "false" },
+          { "growth_stage": "2" },
+          { "tree_shape": "2x2" },
+          { "tree_root": "self" }
+        ]
+      }
+    },
+
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_propagule_hanging_0" },
+        { "model": "minecraft:block/mangrove_propagule_hanging_0_alt" }
+      ],
+      "when": { "AND": [{ "hanging": "true" }, { "age": "0" }] }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_propagule_hanging_1" },
+        { "model": "minecraft:block/mangrove_propagule_hanging_1_alt" }
+      ],
+      "when": { "AND": [{ "hanging": "true" }, { "age": "1" }] }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_propagule_hanging_2" },
+        { "model": "minecraft:block/mangrove_propagule_hanging_2_alt" }
+      ],
+      "when": { "AND": [{ "hanging": "true" }, { "age": "2" }] }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_propagule_hanging_3" },
+        { "model": "minecraft:block/mangrove_propagule_hanging_3_alt" }
+      ],
+      "when": { "AND": [{ "hanging": "true" }, { "age": "3" }] }
+    },
+    {
+      "apply": [
+        { "model": "minecraft:block/mangrove_propagule_hanging_4" },
+        { "model": "minecraft:block/mangrove_propagule_hanging_4_alt" }
+      ],
+      "when": { "AND": [{ "hanging": "true" }, { "age": "4" }] }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/template_giant_sapling_branches_corner",
+  "textures": {
+    "branches1": "minecraft:block/mangrove_sapling_branches3",
+    "branches2": "minecraft:block/mangrove_sapling_branches",
+    "leaves1": "minecraft:block/mangrove_sapling_leaves3",
+    "leaves2": "minecraft:block/mangrove_sapling_leaves"
+  }
+}

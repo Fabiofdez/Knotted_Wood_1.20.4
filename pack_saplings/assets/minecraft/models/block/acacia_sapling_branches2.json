@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/template_sapling_branches",
+  "textures": {
+    "branches1": "minecraft:block/acacia_sapling_branches2",
+    "branches2": "minecraft:block/acacia_sapling_branches3",
+    "leaves1": "minecraft:block/acacia_sapling_leaves2",
+    "leaves2": "minecraft:block/acacia_sapling_leaves3"
+  }
+}

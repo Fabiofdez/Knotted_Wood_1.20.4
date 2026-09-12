@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_sunken_cross_corner",
+  "textures": {
+    "cross": "minecraft:block/jungle_sapling"
+  }
+}

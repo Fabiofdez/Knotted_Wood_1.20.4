@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_sunken_cross",
+  "render_type": "cutout",
+  "textures": {
+    "cross": "minecraft:block/pale_oak_decaying_sprout3"
+  }
+}

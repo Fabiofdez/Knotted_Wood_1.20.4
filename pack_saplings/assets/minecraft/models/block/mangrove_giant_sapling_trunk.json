@@ -1,0 +1,6 @@
+{
+	"parent": "minecraft:block/template_giant_sapling_trunk",
+	"textures": {
+		"log": "minecraft:block/mangrove_log"
+	}
+}
