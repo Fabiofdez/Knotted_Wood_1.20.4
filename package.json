@@ -11,7 +11,7 @@
   },
   "scripts": {
     "wood-packer": "node --import extensionless/register --import module-alias/register src/index.js",
-    "format": "prettier --write *.mcmeta assets/**/*.mcmeta \"src/**/*.js\""
+    "format": "prettier --write *.mcmeta pack*/**/*.mcmeta \"src/**/*.js\""
   },
   "devDependencies": {
     "vite": "^6.4.3"

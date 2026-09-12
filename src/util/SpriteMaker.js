@@ -1,15 +1,12 @@
-import { Dir } from "@const/Directories";
+import { Dir, Packs } from "@const/Directories";
 import { SIDES_TO_TOP_IDX } from "@const/LogSides";
 import { Ctx } from "@const/RunContext";
-import { SpriteType } from "@const/SpriteTypes";
 import { WoodTypes } from "@const/WoodTypes";
 import { LOGGER } from "@util/Logger";
 import looksSame from "looks-same";
 import { execSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { extname } from "node:path";
-
-const { TOPS, SIDES, VARIANT } = SpriteType;
 
 const MODELLED_TOPS = Object.values(SIDES_TO_TOP_IDX);
 
@@ -163,7 +160,7 @@ export const SpriteMaker = {
       };
 
       const sideSprites = customSides ? Dir.SIDE_SPRITES : Dir.TOP_SPRITES;
-      const spriteType = customSides ? SIDES : TOPS;
+      const spriteType = customSides ? "sides" : "tops";
       if (!splitSprites(tmpDir, wood, sideSprites)) {
         LOGGER.warn(`Spritesheet (${spriteType}) for '${wood.id}' not found`);
         return;
@@ -173,12 +170,12 @@ export const SpriteMaker = {
       Object.entries(idxMapping)
         .map(([side, idx]) => ({
           src: `${tmpDir}/${idx}.png`,
-          dst: `${wood.texturesDir}/${logFaces[side]}.png`,
+          dst: `${wood.textures()}/${logFaces[side]}.png`,
         }))
         .forEach(({ src, dst }) => execSync(`cp ${src} ${dst}`));
 
       if (addDefaultSprite(tmpDir, wood)) {
-        execSync(`mv ${tmpDir}/0.png ${wood.texturesDir}/${wood.logAsset}.png`);
+        execSync(`mv ${tmpDir}/0.png ${wood.textures()}/${wood.logAsset}.png`);
       }
     },
 
@@ -202,45 +199,9 @@ export const SpriteMaker = {
 
       await orderTextures(tmpDir, logTop, wood);
     },
-
-    /**
-     * @param {string} tmpDir
-     * @param {BaseWoodAssets} wood
-     */
-    async updateVariantSprites(tmpDir, wood) {
-      execSync(`rm -f ${tmpDir}/*`);
-
-      const spritesPath = `${Ctx.DOWNLOADS}/${Dir.VARIANT_SPRITES}`;
-      if (!hasSpritesheet(spritesPath, wood)) {
-        LOGGER.warn(`Spritesheet (${VARIANT}) for '${wood.id}' not found`);
-        return;
-      }
-
-      const original = `${spritesPath}/${wood.assetPath}.png`;
-      split({ cwd: tmpDir }, original, scene(1));
-      addDefaultSprite(tmpDir, wood);
-
-      await orderTextures(tmpDir, wood.bark(), wood);
-      execSync(`mv ${wood.bark()}_0.png ${wood.logAsset}.png`, {
-        cwd: wood.texturesDir,
-      });
-    },
   },
 
   CTM: {
-    /**
-     * @param {string} tmpDir
-     * @param {WoodAssetsCTM} wood
-     */
-    async updateTopSprites(tmpDir, wood) {
-      execSync(`rm -f ${tmpDir}/*`);
-
-      if (!splitSprites(tmpDir, wood)) return;
-      execSync(`rm -f ${tmpDir}/47.png`);
-
-      await filterChangedSprites(tmpDir, wood.topsDir);
-    },
-
     /**
      * @param {string} tmpDir
      * @param {WoodAssetsCTM} wood
@@ -259,28 +220,6 @@ export const SpriteMaker = {
   },
 
   Fusion: {
-    /**
-     * @param {string} tmpDir
-     * @param {WoodAssetsFusion} wood
-     */
-    updateTopSprites(tmpDir, wood) {
-      clearPNGs(tmpDir);
-
-      if (!splitSprites(tmpDir, wood)) return;
-
-      const { Sprites, Third, MergeOpts } = FusionRemaps.CTM_FULL;
-      join({ cwd: tmpDir }, Sprites.TOP, Third.TOP, ...MergeOpts.PART);
-      join({ cwd: tmpDir }, Sprites.MIDDLE, Third.MIDDLE, ...MergeOpts.PART);
-      join({ cwd: tmpDir }, Sprites.BOTTOM, Third.BOTTOM, ...MergeOpts.PART);
-
-      const outFile = `${wood.logAsset}_top.png`;
-      const outPath = `${tmpDir}/${outFile}`;
-      join({ cwd: tmpDir }, Sprites.THIRDS(), outPath, ...MergeOpts.FINAL);
-
-      cleanDir({ cwd: tmpDir }, outFile);
-      execSync(`mkdir -p out/ && mv *.png out/`, { cwd: tmpDir });
-    },
-
     /**
      * @param {string} tmpDir
      * @param {WoodAssetsFusion} wood
@@ -306,24 +245,6 @@ export const SpriteMaker = {
     },
 
     /** @param {string} tmpDir */
-    async updateLogEdgeSprites(tmpDir) {
-      clearPNGs(tmpDir);
-
-      const edgesDirCTM = `${Ctx.WORK_DIR}/${Dir.CTM.ROOT}/wood_edges`;
-      execSync(`cp [0-2].png ${tmpDir}/`, { cwd: edgesDirCTM });
-
-      const outFile = "log_edges.png";
-      const outPath = `${tmpDir}/${outFile}`;
-      const destDir = `${Ctx.WORK_DIR}/${Dir.textures()}/block`;
-
-      const { Sprites, MergeOpts } = FusionRemaps.LOG_EDGES;
-      join({ cwd: tmpDir }, Sprites, outPath, ...MergeOpts);
-
-      cleanDir({ cwd: tmpDir }, outFile);
-      await filterChangedSprites(tmpDir, destDir, (file) => file === outFile);
-    },
-
-    /** @param {string} tmpDir */
     async updateWoodEdgeSprites(tmpDir) {
       clearPNGs(tmpDir);
 
@@ -337,7 +258,7 @@ export const SpriteMaker = {
 
       const outFile = "wood_edges.png";
       const outPath = `${tmpDir}/${outFile}`;
-      const destDir = `${Ctx.WORK_DIR}/${Dir.textures()}/block`;
+      const destDir = `${Ctx.WORK_DIR}/${Packs.FUSION}/${Dir.textures()}/block`;
       join({ cwd: tmpDir }, Sprites.THIRDS(), outPath, ...MergeOpts.FINAL);
 
       cleanDir({ cwd: tmpDir }, outFile);
@@ -354,12 +275,12 @@ export const SpriteMaker = {
       execSync(`mv out/* .`, { cwd: tmpDir });
 
       /** @type {typeof isPNG} */
-      const isDefaultSprite = (file) => file.endsWith(`${wood.logAsset}.png`);
+      const isDefaultSprite = (file) => file === `${wood.logAsset}.png`;
 
       /** @type {typeof isPNG} */
       const mask = (file) => isPNG(file) && isDefaultSprite(file);
 
-      await filterChangedSprites(tmpDir, wood.texturesDir, mask);
+      await filterChangedSprites(tmpDir, wood.textures(Packs.FUSION), mask);
     },
   },
 };
@@ -423,7 +344,7 @@ function splitSprites(tmpDir, wood, spritesDir = Dir.TOP_SPRITES) {
  * @param {string} baseTexture
  * @param {BaseWoodAssets} wood
  */
-async function orderTextures(tmpDir, baseTexture, wood) {
+async function orderTextures(tmpDir, baseTexture, wood, pack = Packs.DEFAULT) {
   execSync(`for f in [0-9]*.png ; do mv -- "$f" "${baseTexture}_$f" ; done`, {
     cwd: tmpDir,
   });
@@ -431,10 +352,12 @@ async function orderTextures(tmpDir, baseTexture, wood) {
   /** @type {typeof isPNG} */
   const mask = (file) => isPNG(file) && file.startsWith(`${baseTexture}_`);
 
-  await filterChangedSprites(tmpDir, wood.texturesDir, mask);
+  await filterChangedSprites(tmpDir, wood.textures(pack), mask);
 }
 
 async function filterChangedSprites(tmpDir, destDir, mask = isPNG) {
+  execSync(`mkdir -p ${destDir}`);
+
   const existingSprites = readdirSync(`${destDir}`);
   const tmpSprites = readdirSync(`${tmpDir}`);
 

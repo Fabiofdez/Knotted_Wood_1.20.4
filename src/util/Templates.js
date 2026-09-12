@@ -1,3 +1,4 @@
+import { Packs } from "@const/Directories";
 import { MODELLED_SIDES, SIDES_TO_TOP_IDX } from "@const/LogSides";
 import { Ctx } from "@const/RunContext";
 import { WoodTypes } from "@const/WoodTypes";
@@ -149,30 +150,6 @@ function withOverlay(def, overlay = "") {
   return def;
 }
 
-/**
- * @param {WoodAssetsCTM} wood
- * @param {Object[]} properties
- */
-function withProperties(wood, properties = [], withOverlay = false) {
-  const output = wood.logBlock;
-
-  let woodProperties = properties;
-  const overlay = WoodTypes.conditionalOverlay(wood);
-  if (overlay) {
-    woodProperties = [
-      ...properties,
-      { [overlay.conditionName]: `${withOverlay}` },
-    ];
-  }
-
-  const parsedProps = woodProperties
-    .map((propEntry) => Object.entries(propEntry)[0])
-    .map(([prop, values]) => `${prop}=${values.replace(/\|/g, ",")}`);
-
-  if (parsedProps.length) return [output, ...parsedProps].join(":");
-  return output;
-}
-
 /** @type {TemplateProvider<BaseWoodAssets>} */
 const build = (T) => ({
   defineFor(wood) {
@@ -290,7 +267,7 @@ const modelOrientationReplacements = [
 
 /** @type {TemplateDef<BaseWoodAssets>} */
 const logBlockStateDef = {
-  output: (wood) => `${wood.blockstatesDir}/${wood.logAsset}.json`,
+  output: (wood) => `${wood.blockstates()}/${wood.logAsset}.json`,
   replacer: (wood) => [
     { regex: /TEMPLATE_LOG/g, value: wood.resId() },
     { regex: /_H/g, value: _H },
@@ -315,7 +292,7 @@ export const Templates = {
 
     WOOD: build({
       baseFile: "blockstates/wood.json",
-      output: (wood) => `${wood.blockstatesDir}/${wood.woodAsset}.json`,
+      output: (wood) => `${wood.blockstates()}/${wood.woodAsset}.json`,
       replacer: (wood) => ({
         regex: /TEMPLATE_WOOD/g,
         value: wood.resId(`${wood.woodAsset}_custom`),
@@ -327,7 +304,7 @@ export const Templates = {
   MODELS: {
     LOG: Models.buildLog((sides, model) => ({
       baseFile: "models/log.json",
-      output: (wood) => `${wood.modelsDir}/${model}.json`,
+      output: (wood) => `${wood.models()}/${model}.json`,
       replacer: (wood) => [
         { regex: /TEMPLATE_PARTICLE/g, value: particleResId(wood) },
 
@@ -352,7 +329,7 @@ export const Templates = {
 
     WOOD: Models.buildWood({
       baseFile: "models/wood.json",
-      output: (wood) => `${wood.modelsDir}/${wood.woodAsset}_custom.json`,
+      output: (wood) => `${wood.models()}/${wood.woodAsset}_custom.json`,
       replacer: (wood) => [
         { regex: /TEMPLATE_PARTICLE/g, value: particleResId(wood) },
         { regex: /TEMPLATE_BARK/g, value: wood.resId() },
@@ -372,7 +349,8 @@ export const Templates = {
   Fusion: {
     VARIANTS: buildFusion({
       baseFile: "variants.png.mcmeta",
-      output: (wood) => `${wood.texturesDir}/${wood.logAsset}.png.mcmeta`,
+      output: (wood) =>
+        `${wood.textures(Packs.FUSION)}/${wood.logAsset}.png.mcmeta`,
     }),
   },
 };

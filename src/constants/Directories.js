@@ -2,6 +2,12 @@ import { Ctx } from "@const/RunContext";
 import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 
+export const Packs = {
+  DEFAULT: "pack_default",
+  CTM: "pack_ctm",
+  FUSION: "pack_fusion",
+};
+
 export const Namespace = {
   VANILLA: "minecraft",
   REGIONS_UNEXPLORED: "regions_unexplored",
@@ -9,7 +15,7 @@ export const Namespace = {
 
 export const Dir = /** @type {const} */ ({
   CTM: {
-    ROOT: "assets/minecraft/optifine/ctm",
+    ROOT: `${Packs.CTM}/assets/minecraft/optifine/ctm`,
 
     forType: (namespace = Namespace.VANILLA, type) =>
       /** @type {const} */ (`${Dir.CTM.ROOT}/${namespace}/${type}`),
@@ -17,7 +23,9 @@ export const Dir = /** @type {const} */ ({
 
   FUSION: {
     modelModifiers: (namespace = Namespace.VANILLA) =>
-      /** @type {const} */ (`assets/${namespace}/fusion/model_modifiers`),
+      /** @type {const} */ (
+        `${Packs.FUSION}/assets/${namespace}/fusion/model_modifiers`
+      ),
   },
 
   blockstates: (namespace = Namespace.VANILLA) =>

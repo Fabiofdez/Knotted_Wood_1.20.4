@@ -5,9 +5,8 @@ import { Common } from "@methods/Common";
 import { SpriteMaker } from "@util/SpriteMaker";
 import { Templates } from "@util/Templates";
 import { Wood, WoodFacts } from "@util/Wood";
-import { globSync } from "glob";
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 
 export const CTM = {
   /** @param {WoodAssetsCTM} wood */
@@ -17,71 +16,12 @@ export const CTM = {
     setUpDirs(wood, isStripped, hasVariants);
 
     Dir.makeTemp(`tmp/ctm/${wood.assetPath}`, async (dir) => {
-      // if (!isStripped) await SpriteMaker.CTM.updateTopSprites(dir, wood);
       if (hasVariants) await SpriteMaker.CTM.updateVariantSprites(dir, wood);
 
       if (!Ctx.NEW_WOODS?.[wood.id]) return removeDirs(wood);
 
-      // if (!isStripped) Templates.CTM.TOP.defineFor(wood);
       if (hasVariants) Templates.CTM.VARIANTS.defineFor(wood);
     });
-  },
-
-  /** @param {WoodAssetsCTM[]} woodAssets */
-  updateEdges(woodAssets) {
-    const ctmEdgesDir = `${Ctx.WORK_DIR}/${Dir.CTM.ROOT}`;
-    const ctmEdgesProps = globSync([
-      // `${ctmEdgesDir}/live_logs/*/*.ctm.properties`,
-      // `${ctmEdgesDir}/chopped_logs/*/*.ctm.properties`,
-      `${ctmEdgesDir}/wood_edges/ctm.properties`,
-    ]);
-
-    /**
-     * @param {WoodAssetsCTM} wood
-     * @param {boolean} isTrunk
-     * @param {string} axis
-     */
-    const state = (wood, isTrunk, axis) => {
-      if (WoodFacts.isStripped(wood)) return `${wood.logBlock}:axis=${axis}`;
-      return `${wood.logBlock}:is_trunk=${isTrunk}:axis=${axis}`;
-    };
-
-    /**
-     * @satisfies {{
-     *   [k: string]: (wood: WoodAssetsCTM, isTrunk: boolean) => string;
-     * }}
-     */
-    const blockStateTransform = {
-      x: (wood, isTrunk) => state(wood, isTrunk, "x"),
-      y: (wood, isTrunk) => state(wood, isTrunk, "y"),
-      z_horizontal: (wood, isTrunk) => state(wood, isTrunk, "z"),
-      z_vertical: (wood, isTrunk) => state(wood, isTrunk, "z"),
-      wood: (wood) => wood.woodBlock,
-    };
-
-    for (const propsPath of ctmEdgesProps) {
-      const [propsFile, _, ctxDir] = propsPath.split("/").reverse(); // TODO: ctxDir invalid
-      const [overlayType] = propsFile.split("."); // TODO: overlayType invalid
-
-      // const trunkOnly = ctxDir === "live_logs" && overlayType !== "wood";
-      const trunkOnly = false;
-      const matchBlocks = woodAssets
-        .filter((wood) => (trunkOnly ? !WoodFacts.isStripped(wood) : true))
-        // .map((wood) => blockStateTransform[overlayType]?.(wood, trunkOnly))
-        .map((wood) => blockStateTransform.wood(wood, trunkOnly))
-        .filter((block) => block?.length > 0);
-
-      const otherProps = readFileSync(propsPath)
-        .toLocaleString()
-        .split("\n")
-        .filter((line) => !line.startsWith("matchBlocks"));
-
-      const updatedProps = [
-        `matchBlocks=${[...new Set(matchBlocks)].sort().join(" ")}`,
-        ...otherProps,
-      ];
-      writeFileSync(propsPath, updatedProps.join("\n").trim() + "\n");
-    }
   },
 
   updateAll() {

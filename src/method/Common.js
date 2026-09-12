@@ -17,8 +17,8 @@ export const Common = {
   updateWood(wood) {
     this.markToUpdate(wood);
 
-    execSync(`mkdir -p ${wood.blockstatesDir}`);
-    execSync(`mkdir -p ${wood.modelsDir}`);
+    execSync(`mkdir -p ${wood.blockstates()}`);
+    execSync(`mkdir -p ${wood.models()}`);
 
     const condOverlay = WoodTypes.conditionalOverlay(wood);
 

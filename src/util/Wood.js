@@ -1,4 +1,4 @@
-import { Dir, Namespace } from "@const/Directories";
+import { Dir, Namespace, Packs } from "@const/Directories";
 import { Ctx } from "@const/RunContext";
 
 /** @type {{ [k: WoodType]: BaseWoodAssets }} */
@@ -44,9 +44,23 @@ export const Wood = {
       logAsset: `${path}_log`,
       woodAsset: `${path}_wood`,
 
-      blockstatesDir: `${Ctx.WORK_DIR}/${Dir.blockstates(namespace)}`,
-      modelsDir: `${Ctx.WORK_DIR}/${Dir.models(namespace)}/block`,
-      texturesDir: `${Ctx.WORK_DIR}/${Dir.textures(namespace)}/block`,
+      blockstates(pack = Packs.DEFAULT) {
+        return /** @type {const} */ (
+          `${Ctx.WORK_DIR}/${pack}/${Dir.blockstates(namespace)}`
+        );
+      },
+
+      models(pack = Packs.DEFAULT) {
+        return /** @type {const} */ (
+          `${Ctx.WORK_DIR}/${pack}/${Dir.models(namespace)}/block`
+        );
+      },
+
+      textures(pack = Packs.DEFAULT) {
+        return /** @type {const} */ (
+          `${Ctx.WORK_DIR}/${pack}/${Dir.textures(namespace)}/block`
+        );
+      },
 
       resId(customPath = "") {
         return /** @type {const} */ (

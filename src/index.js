@@ -57,11 +57,11 @@ export const ARG_OPTIONS = [
     args: [METHOD],
     fn: (method) => updateAll(method),
   },
-  {
-    cmds: ["-z", "--rezip"],
-    args: [METHOD],
-    fn: (method) => rezip(method),
-  },
+  // {
+  //   cmds: ["-z", "--rezip"],
+  //   args: [METHOD],
+  //   fn: (method) => rezip(method),
+  // },
 ];
 
 function init() {
